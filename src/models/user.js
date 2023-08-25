@@ -35,9 +35,16 @@ const userSchema = new mongoose.Schema(
 );
 
 userSchema.pre("save", async function (next) {
-  this.user_id = this.user_id + "12345";
+  this.user_id = generateUniqueUserId(this.email_id, this.name);
+  console.log(`New user id generated: ${this.user_id}`);
   next();
 });
+
+const generateUniqueUserId = (email, name) => {
+  let emailName = email.split("@")[0];
+  let firstName = name.split(" ")[0];
+  return `@${firstName}_${emailName}`;
+};
 
 const User = mongoose.model("User", userSchema);
 
