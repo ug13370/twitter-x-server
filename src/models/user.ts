@@ -1,5 +1,15 @@
-const mongoose = require("mongoose");
-const isEmail = require("../validators/isEmail");
+import mongoose from "mongoose";
+import isEmail from "../validators/isEmail";
+
+interface UserDocument extends mongoose.Document {
+  user_id: string;
+  name: string;
+  email_id: string;
+  bio?: string;
+  location?: string;
+  primary_media_id?: any;
+  secondary_media_id?: any;
+}
 
 const userSchema = new mongoose.Schema(
   {
@@ -7,7 +17,7 @@ const userSchema = new mongoose.Schema(
       trim: true,
       type: String,
       unique: true,
-      default: (props) => props.email_id,
+      default: (props: any) => props.email_id,
       required: [true, "user_id is required."],
     },
     name: {
@@ -23,7 +33,7 @@ const userSchema = new mongoose.Schema(
       required: [true, "Email Id is required."],
       validate: {
         validator: isEmail,
-        message: (props) => `${props.value} is not a valid email Id!`,
+        message: (props: any) => `${props.value} is not a valid email Id!`,
       },
     },
     bio: { trim: true, type: String, minLength: 1, maxLength: 100 },
@@ -34,18 +44,17 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-userSchema.pre("save", async function (next) {
+userSchema.pre<UserDocument>("save", async function (next) {
   this.user_id = generateUniqueUserId(this.email_id, this.name);
   console.log(`New user id generated: ${this.user_id}`);
   next();
 });
 
-const generateUniqueUserId = (email, name) => {
+const generateUniqueUserId = (email: string, name: string): string => {
   let emailName = email.split("@")[0];
   let firstName = name.split(" ")[0];
   return `@${firstName}_${emailName}`;
 };
 
 const User = mongoose.model("User", userSchema);
-
-module.exports = User;
+export default User;
