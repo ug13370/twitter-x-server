@@ -1,8 +1,8 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
-const options = {
+const options: any = {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 };
-const uri = process.env.MONGODB_URL;
+const uri: string = process.env.MONGODB_URL || "";
 mongoose.connect(uri, options);

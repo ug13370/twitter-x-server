@@ -5,7 +5,6 @@ const passwordSchema = new mongoose.Schema({
   user_id: {
     trim: true,
     type: String,
-    unique: true,
     required: [true, "user_id is required."],
   },
   password: {
@@ -18,5 +17,7 @@ const passwordSchema = new mongoose.Schema({
   },
 });
 
+// Create the Password model
 const Password = mongoose.model("Password", passwordSchema);
-export default Password
+
+export default Password;
