@@ -5,7 +5,7 @@ import { Request, Response } from "express";
 // Model Imports
 import User from "../models/user";
 import Password from "../models/password";
-import { createNewUser } from "../middlewares/user_route";
+import { createNewUser, deleteSingleUser } from "../middlewares/user_route";
 
 const router = express.Router();
 
@@ -89,39 +89,43 @@ router.post("/user", createNewUser, async (req: Request, res: Response) => {
 // Update user password
 
 // Define a route to delete a user by their user_id
-router.delete("/user/:user_id", async (req: Request, res: Response) => {
-  try {
-    // Attempt to delete the user based on their user_id
-    const deleteRes = await User.deleteOne({ user_id: req.params.user_id });
+router.delete(
+  "/user/:user_id",
+  deleteSingleUser,
+  async (req: Request, res: Response) => {
+    try {
+      // Attempt to delete the user based on their user_id
+      const deleteRes = await User.deleteOne({ user_id: req.params.user_id });
 
-    // Check if the user was successfully deleted
-    if (deleteRes.deletedCount === 1) {
-      // User deleted successfully
-      console.log("User deleted successfully.");
-      res.status(201).send({
-        status: "success",
-        message: "User deleted successfully.",
-        details: deleteRes,
-      });
-    } else {
-      // User not found with the provided user_id
-      console.log("User not found.");
-      res.status(404).send({
+      // Check if the user was successfully deleted
+      if (deleteRes.deletedCount === 1) {
+        // User deleted successfully
+        console.log("User deleted successfully.");
+        res.status(201).send({
+          status: "success",
+          message: "User deleted successfully.",
+          details: deleteRes,
+        });
+      } else {
+        // User not found with the provided user_id
+        console.log("User not found.");
+        res.status(404).send({
+          status: "error",
+          message: "User not found.",
+          details: "No user found with the provided user_id.",
+        });
+      }
+    } catch (err: any) {
+      // Handle any errors that occurred during the deletion
+      console.error("User deletion failed:", err);
+      res.status(500).send({
         status: "error",
-        message: "User not found.",
-        details: "No user found with the provided user_id.",
+        message: "Internal Server Error",
+        details: err.message,
       });
     }
-  } catch (err: any) {
-    // Handle any errors that occurred during the deletion
-    console.error("User deletion failed:", err);
-    res.status(500).send({
-      status: "error",
-      message: "Internal Server Error",
-      details: err.message,
-    });
   }
-});
+);
 
 // Define a route to delete all users
 router.delete("/user", async (req: Request, res: Response) => {
