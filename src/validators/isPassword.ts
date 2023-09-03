@@ -1,11 +1,7 @@
-/**
- * Password validation function.
- * @param {string} value - The password to be validated.
- * @returns {boolean} - True if the password is valid, false otherwise.
- */
 function isPassword(value: string): boolean {
   // Check if the password is at least 5 characters long
   if (value.length < 5) {
+    console.error("Password validation failed.");
     return false;
   }
 
@@ -17,10 +13,12 @@ function isPassword(value: string): boolean {
 
   // Check if there are at least 2 special characters
   if (specialCharCount < 2) {
+    console.error("Password validation failed.");
     return false;
   }
 
   // If all checks pass, consider the password valid
+  console.info("Password validation passed.");
   return true;
 }
 

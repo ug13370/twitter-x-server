@@ -9,53 +9,152 @@ import { createNewUser } from "../middlewares/user_route";
 
 const router = express.Router();
 
-router.get("/user", async (req: any, res: any) => {
+// Define a route to fetch all users
+router.get("/user", async (req: Request, res: Response) => {
   try {
-    let users = await User.find({});
-    console.log(users);
-    res.status(201).send(users);
-  } catch (e: any) {
-    console.log(e.message);
-    res.status(400).send(e);
+    // Fetch all users from the database
+    const users = await User.find({});
+
+    // Check if users were found
+    if (users.length > 0) {
+      // Users fetched successfully
+      console.log("Users fetched successfully.");
+      res.status(200).send({
+        status: "success",
+        message: "Users fetched successfully.",
+        details: users,
+      });
+    } else {
+      // No users found
+      console.log("No users found.");
+      res.status(404).send({
+        status: "error",
+        message: "No users found.",
+        details: "No users were found in the database.",
+      });
+    }
+  } catch (err: any) {
+    // Handle any errors that may occur during the fetch
+    console.error("Users fetching failed:", err);
+    res.status(500).json({
+      status: "error",
+      message: "Internal Server Error",
+      details: err.message,
+    });
   }
 });
 
+// Define a route to create a new user
 router.post("/user", createNewUser, async (req: Request, res: Response) => {
   try {
     // Destructure request body.
     const { name, email_id, password } = req.body;
 
-    // Saving user/password details
-    let userCreationRes = await handleCreateNewUser({ name, email_id });
-    let passwordCreationRes: any;
-    if (userCreationRes.status === "success")
-      passwordCreationRes = await handleRegisterNewPassword({
+    // Create a new user with user details
+    const userCreationRes = await handleCreateNewUser({ name, email_id });
+
+    // Check if user creation was successful
+    if (userCreationRes.status === "success") {
+      // Create a new password with user_id and password
+      const passwordCreationRes = await handleRegisterNewPassword({
         user_id: userCreationRes.details.user_id,
         password,
       });
 
-    // Conditional response firing
-    if (userCreationRes.status === "error")
+      // Check if password creation was successful
+      if (passwordCreationRes.status === "success") {
+        // User and password creation successful
+        res.status(201).json(userCreationRes);
+      } else {
+        // Password creation failed
+        res.status(422).json(passwordCreationRes);
+      }
+    } else {
+      // User creation failed
       res.status(422).json(userCreationRes);
-    else if (passwordCreationRes.status === "error")
-      res.status(422).json(passwordCreationRes);
-    else res.status(201).json(userCreationRes);
+    }
   } catch (err: any) {
+    // Handle any errors that may occur during the creation process
+    console.error("User creation failed:", err);
     res.status(500).json({
       status: "error",
       message: "Internal Server Error",
-      details: err.details,
+      details: err.message,
     });
   }
 });
 
-router.delete("/user", async (req: any, res: any) => {
+// Update user details.
+
+// Update user password
+
+// Define a route to delete a user by their user_id
+router.delete("/user/:user_id", async (req: Request, res: Response) => {
   try {
-    let deleteRes = await User.deleteMany({});
-    res.status(201).send(deleteRes);
-  } catch (e: any) {
-    console.log(e.message);
-    res.status(400).send(e);
+    // Attempt to delete the user based on their user_id
+    const deleteRes = await User.deleteOne({ user_id: req.params.user_id });
+
+    // Check if the user was successfully deleted
+    if (deleteRes.deletedCount === 1) {
+      // User deleted successfully
+      console.log("User deleted successfully.");
+      res.status(201).send({
+        status: "success",
+        message: "User deleted successfully.",
+        details: deleteRes,
+      });
+    } else {
+      // User not found with the provided user_id
+      console.log("User not found.");
+      res.status(404).send({
+        status: "error",
+        message: "User not found.",
+        details: "No user found with the provided user_id.",
+      });
+    }
+  } catch (err: any) {
+    // Handle any errors that occurred during the deletion
+    console.error("User deletion failed:", err);
+    res.status(500).send({
+      status: "error",
+      message: "Internal Server Error",
+      details: err.message,
+    });
+  }
+});
+
+// Define a route to delete all users
+router.delete("/user", async (req: Request, res: Response) => {
+  try {
+    // Attempt to delete all users
+    const deleteRes = await User.deleteMany({});
+
+    // Check if users were successfully deleted
+    if (deleteRes.deletedCount > 0) {
+      // Users deleted successfully
+      console.log("Users deleted successfully.");
+      res.status(201).send({
+        status: "success",
+        message: "Users deleted successfully.",
+        details: deleteRes,
+      });
+    } else {
+      // No users found to delete
+      console.log("No users found to delete.");
+      res.status(404).send({
+        status: "error",
+        message: "No users found to delete.",
+        details: "No users were found to delete.",
+      });
+    }
+  } catch (err: any) {
+    // Handle any errors that occurred during the deletion
+    console.error("Users deletion failed:", err);
+    res.status(500).send({
+      status: "error",
+      message: "Internal Server Error",
+      details: err.message,
+    });
   }
 });
 

@@ -5,14 +5,15 @@ const passwordSchema = new mongoose.Schema({
   user_id: {
     trim: true,
     type: String,
-    required: [true, "user_id is required."],
+    unique: true,
+    required: [true, "user_id is required!"],
   },
   password: {
     trim: true,
     type: String,
     validate: {
       validator: isPassword,
-      message: (props) => `${props.value} is not a valid password!`,
+      message: (props: any) => `${props.value} is not a valid password!`,
     },
   },
 });

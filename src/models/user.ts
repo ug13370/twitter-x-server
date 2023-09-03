@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import isEmail from "../validators/isEmail";
+import Password from "./password";
 
 // Define the interface for User documents
 interface UserDocument extends mongoose.Document {
@@ -48,10 +49,44 @@ const userSchema = new mongoose.Schema(
 
 // Pre-save hook to generate a unique user_id if not provided
 userSchema.pre<UserDocument>("save", async function (next) {
-  // Generate a unique user_id
-  this.user_id = generateUniqueUserId(this.email_id, this.name);
-  console.log(`New user id generated: ${this.user_id}`);
-  next();
+  try {
+    // Generate a unique user_id
+    this.user_id = generateUniqueUserId(this.email_id, this.name);
+    console.log(`New user id generated: ${this.user_id}`);
+    next();
+  } catch (err: any) {
+    next(err);
+  }
+});
+
+// Pre-remove hook to delete a single password when a user is deleted
+userSchema.pre("deleteOne", async function (next) {
+  try {
+    // Delete a single password based on the filter criteria
+    await Password.deleteOne(this.getFilter());
+
+    console.log("Password de-registered successfully.");
+    next();
+  } catch (err: any) {
+    // Handle any errors that may occur during password deletion
+    console.error("Password de-registration failed:", err);
+    next(err);
+  }
+});
+
+// Pre-remove hook to delete all passwords when multiple users are deleted
+userSchema.pre("deleteMany", async function (next) {
+  try {
+    // Delete all passwords
+    await Password.deleteMany({});
+
+    console.log("Passwords de-registered successfully.");
+    next();
+  } catch (err: any) {
+    // Handle any errors that may occur during password deletion
+    console.error("Passwords de-registration failed:", err);
+    next(err);
+  }
 });
 
 // Function to generate a unique user_id based on email and name
