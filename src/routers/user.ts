@@ -48,10 +48,10 @@ router.get("/user", async (req: Request, res: Response) => {
 router.post("/user", createNewUser, async (req: Request, res: Response) => {
   try {
     // Destructure request body.
-    const { name, email_id, password } = req.body;
+    const { name, email_id, dob, password } = req.body;
 
     // Create a new user with user details
-    const userCreationRes = await handleCreateNewUser({ name, email_id });
+    const userCreationRes = await handleCreateNewUser({ name, email_id, dob });
 
     // Check if user creation was successful
     if (userCreationRes.status === "success") {
@@ -164,8 +164,9 @@ router.delete("/user", async (req: Request, res: Response) => {
 
 /** Helper Functions */
 const handleCreateNewUser = async (userDetails: {
-  name: string;
-  email_id: string;
+  name: String;
+  email_id: String;
+  dob: Date;
 }) => {
   try {
     // Create a new user instance.
@@ -173,14 +174,14 @@ const handleCreateNewUser = async (userDetails: {
 
     // Save it in database.
     let savedRes: any = await userInstance.save();
-    let { name, email_id, user_id } = savedRes._doc;
+    let { name, email_id, user_id, dob } = savedRes._doc;
 
     // Returning user details.
     console.info("User creation successfull");
     return {
       status: "success",
       message: "User created successfully",
-      details: { name, email_id, user_id },
+      details: { name, email_id, user_id, dob },
     };
   } catch (err: any) {
     console.info("User creation failed");

@@ -39,6 +39,11 @@ const userSchema = new mongoose.Schema(
         message: (props: any) => `${props.value} is not a valid email Id!`,
       },
     },
+    dob: {
+      trim: true,
+      type: Date,
+      required: [true, "DOB is required."],
+    },
     bio: { trim: true, type: String, minLength: 1, maxLength: 100 },
     location: { trim: true, type: String },
     primary_media_id: {},

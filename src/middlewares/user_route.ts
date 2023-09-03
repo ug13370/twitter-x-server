@@ -12,6 +12,7 @@ const createNewUser: RequestHandler = async (
       name: Joi.string().required(),
       email_id: Joi.string().required(),
       password: Joi.string().min(5).required().custom(hasTwoSpecialChars),
+      dob: Joi.date().iso().required(),
     });
 
     // Validate the request body against the schema
