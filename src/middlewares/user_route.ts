@@ -1,5 +1,7 @@
 import Joi, { CustomHelpers, ValidationResult } from "joi";
 import { Request, Response, NextFunction, RequestHandler } from "express";
+import isEmailIdExisting from "../validators/isEmailExisting";
+import isUserIdExisting from "../validators/isUserIdExisting";
 
 const createNewUser: RequestHandler = async (
   req: Request,
@@ -9,29 +11,34 @@ const createNewUser: RequestHandler = async (
   try {
     // Define the request schema using Joi inside the function
     const reqSchema = Joi.object({
+      user_id: Joi.string()
+        .regex(/^@/)
+        .required()
+        .external(isUserIdNotExistingInDB),
       name: Joi.string().required(),
-      email_id: Joi.string().required(),
+      email_id: Joi.string()
+        .email({ tlds: { allow: false } })
+        .required()
+        .external(isEmailIdExistingInDB),
       password: Joi.string().min(5).required().custom(hasTwoSpecialChars),
       dob: Joi.date().iso().required(),
-    });
+    }).options({ abortEarly: false });
 
-    // Validate the request body against the schema
-    const { value, error, warning }: ValidationResult = reqSchema.validate(
-      req.body
-    );
+    try {
+      // Validate the request body against the schema
+      await reqSchema.validateAsync(req.body);
 
-    if (error) {
+      // If validation passes, continue with the request handling.
+      console.info("User creation route middleware passed.");
+      next();
+    } catch (err: any) {
       // If there's a validation error, respond with a 422 status and error message.
       console.error("User creation route middleware failed.");
       res.status(422).json({
         status: "error",
         message: "Incorrect payload",
-        details: error.details,
+        details: err.details,
       });
-    } else {
-      // If validation passes, continue with the request handling.
-      console.info("User creation route middleware passed.");
-      next();
     }
   } catch (err: any) {
     res.status(500).json({
@@ -50,26 +57,27 @@ const deleteSingleUser: RequestHandler = async (
   try {
     // Define the request schema using Joi inside the function
     const reqSchema = Joi.object({
-      user_id: Joi.string().regex(/^@/).required(),
-    });
+      user_id: Joi.string()
+        .regex(/^@/)
+        .required()
+        .external(isUserIdExistingInDB),
+    }).options({ abortEarly: false });
 
-    // Validate the request param against the schema
-    const { value, error, warning }: ValidationResult = reqSchema.validate(
-      req.params
-    );
+    try {
+      // Validate the request param against the schema
+      await reqSchema.validateAsync(req.params);
 
-    if (error) {
+      // If validation passes, continue with the request handling.
+      console.info("Delete single user route middleware passed.");
+      next();
+    } catch (err: any) {
       // If there's a validation error, respond with a 422 status and error message.
       console.error("Delete single user route middleware failed.");
       res.status(422).json({
         status: "error",
         message: "Incorrect params",
-        details: error.details,
+        details: err.details,
       });
-    } else {
-      // If validation passes, continue with the request handling.
-      console.info("Delete single user route middleware passed.");
-      next();
     }
   } catch (err: any) {
     res.status(500).json({
@@ -92,6 +100,63 @@ const hasTwoSpecialChars = (value: string, helpers: CustomHelpers<string>) => {
   return helpers.message({
     custom: "must contain at least 2 special characters",
   });
+};
+
+const isEmailIdExistingInDB = async (
+  value: string,
+  helpers: CustomHelpers<string>
+): Promise<any> => {
+  try {
+    let res = await isEmailIdExisting(value);
+    if (!res) return value;
+    else
+      return helpers.message({
+        external: "email_id already exists",
+      });
+  } catch (error) {
+    // Handle the error appropriately
+    return helpers.message({
+      external: "An error occurred while checking email_id existence",
+    });
+  }
+};
+
+const isUserIdNotExistingInDB = async (
+  value: string,
+  helpers: CustomHelpers<string>
+): Promise<any> => {
+  try {
+    let res = await isUserIdExisting(value);
+    if (!res) return value;
+    else
+      return helpers.message({
+        external: "user_id already exists",
+      });
+  } catch (error) {
+    // Handle the error appropriately
+    return helpers.message({
+      external: "An error occurred while checking user_id existence",
+    });
+  }
+};
+
+const isUserIdExistingInDB = async (
+  value: string,
+  helpers: CustomHelpers<string>
+): Promise<any> => {
+  try {
+    let res = await isUserIdExisting(value);
+    if (res) return value;
+    else
+      return helpers.message({
+        external: "user_id does not exists",
+      });
+  } catch (error) {
+    // Handle the error appropriately
+    return helpers.message({
+      external: "An error occurred while checking user_id existence",
+    });
+  }
 };
 
 export { createNewUser, deleteSingleUser };

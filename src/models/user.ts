@@ -20,7 +20,6 @@ const userSchema = new mongoose.Schema(
       trim: true,
       type: String,
       unique: true,
-      default: (props: any) => props.email_id,
       required: [true, "user_id is required."],
     },
     name: {
@@ -53,16 +52,16 @@ const userSchema = new mongoose.Schema(
 );
 
 // Pre-save hook to generate a unique user_id if not provided
-userSchema.pre<UserDocument>("save", async function (next) {
-  try {
-    // Generate a unique user_id
-    this.user_id = generateUniqueUserId(this.email_id, this.name);
-    console.log(`New user id generated: ${this.user_id}`);
-    next();
-  } catch (err: any) {
-    next(err);
-  }
-});
+// userSchema.pre<UserDocument>("save", async function (next) {
+//   try {
+//     // Generate a unique user_id
+//     this.user_id = generateUniqueUserId(this.email_id, this.name);
+//     console.log(`New user id generated: ${this.user_id}`);
+//     next();
+//   } catch (err: any) {
+//     next(err);
+//   }
+// });
 
 // Pre-remove hook to delete a single password when a user is deleted
 userSchema.pre("deleteOne", async function (next) {
@@ -95,11 +94,11 @@ userSchema.pre("deleteMany", async function (next) {
 });
 
 // Function to generate a unique user_id based on email and name
-const generateUniqueUserId = (email: string, name: string): string => {
-  let emailName = email.split("@")[0];
-  let firstName = name.split(" ")[0];
-  return `@${firstName}_${emailName}`;
-};
+// const generateUniqueUserId = (email: string, name: string): string => {
+//   let emailName = email.split("@")[0];
+//   let firstName = name.split(" ")[0];
+//   return `@${firstName}_${emailName}`;
+// };
 
 // Create the User model
 const User = mongoose.model<UserDocument>("User", userSchema);
