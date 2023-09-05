@@ -43,7 +43,12 @@ const userSchema = new mongoose.Schema(
       type: Date,
       required: [true, "DOB is required."],
     },
-    bio: { trim: true, type: String, minLength: 1, maxLength: 100 },
+    bio: {
+      trim: true,
+      minLength: 1,
+      type: String,
+      maxLength: 100,
+    },
     location: { trim: true, type: String },
     primary_media_id: {},
     secondary_media_id: {},

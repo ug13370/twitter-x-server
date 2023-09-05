@@ -5,7 +5,11 @@ import { Request, Response } from "express";
 // Model Imports
 import User from "../models/user";
 import Password from "../models/password";
-import { createNewUser, deleteSingleUser } from "../middlewares/user_route";
+import {
+  createNewUser,
+  deleteSingleUser,
+  updateSingleUser,
+} from "../middlewares/user_route";
 
 const router = express.Router();
 
@@ -90,6 +94,51 @@ router.post("/user", createNewUser, async (req: Request, res: Response) => {
 });
 
 // Update user details.
+router.patch("/user", updateSingleUser, async (req: Request, res: Response) => {
+  try {
+    // Destructure and validate request body.
+    const { user_id, name, dob, bio, location } = req.body;
+
+    // Check for required fields and validation here...
+
+    // Fields to modify
+    const fields: Record<string, any> = {};
+
+    if (name !== undefined) fields.name = name;
+    if (dob !== undefined) fields.dob = dob;
+    if (bio !== undefined) fields.bio = bio;
+    if (location !== undefined) fields.location = location;
+
+    // Update user details
+    const result: any = await User.updateOne({ user_id: user_id }, fields);
+    if (result.modifiedCount === 0) {
+      // If no documents were modified, the user with the specified ID was not found.
+      return res.status(404).json({
+        status: "error",
+        message: "No user found",
+        details: "No users were found in the database.",
+      });
+    } else {
+      // Get updated user.
+      let updatedUser = await User.findOne({ user_id: user_id });
+
+      // User details updated successfully
+      res.status(200).json({
+        status: "success",
+        message: "User details updated successfully",
+        details: updatedUser,
+      });
+    }
+  } catch (err: any) {
+    // Handle other errors
+    console.error("User updation failed:", err);
+    res.status(500).json({
+      status: "error",
+      message: "Internal Server Error",
+      details: err.message,
+    });
+  }
+});
 
 // Update user password
 
@@ -191,7 +240,7 @@ const handleCreateNewUser = async (userDetails: {
     };
   } catch (err: any) {
     console.info("User creation failed");
-    console.log(err)
+    console.log(err);
     return { status: "error", message: err._message, details: err.message };
   }
 };

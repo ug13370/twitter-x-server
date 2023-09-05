@@ -49,6 +49,48 @@ const createNewUser: RequestHandler = async (
   }
 };
 
+const updateSingleUser: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    // Define the request schema using Joi inside the function
+    const reqSchema = Joi.object({
+      user_id: Joi.string()
+        .regex(/^@/)
+        .required()
+        .external(isUserIdExistingInDB),
+      name: Joi.string().optional(),
+      dob: Joi.date().iso().optional(),
+      bio: Joi.string().optional(),
+      location: Joi.string().optional(),
+    }).options({ abortEarly: false });
+    try {
+      // Validate the request body against the schema
+      await reqSchema.validateAsync(req.body);
+
+      // If validation passes, continue with the request handling.
+      console.info("User updation route middleware passed.");
+      next();
+    } catch (err: any) {
+      // If there's a validation error, respond with a 422 status and error message.
+      console.error("User updation route middleware failed.");
+      res.status(422).json({
+        status: "error",
+        message: "Incorrect payload",
+        details: err.details,
+      });
+    }
+  } catch (err: any) {
+    res.status(500).json({
+      status: "error",
+      message: "An error occurred while running user updation middleware.",
+      details: err.details,
+    });
+  }
+};
+
 const deleteSingleUser: RequestHandler = async (
   req: Request,
   res: Response,
@@ -159,4 +201,4 @@ const isUserIdExistingInDB = async (
   }
 };
 
-export { createNewUser, deleteSingleUser };
+export { createNewUser, updateSingleUser, deleteSingleUser };
