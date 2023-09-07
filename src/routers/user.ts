@@ -93,13 +93,11 @@ router.post("/user", createNewUser, async (req: Request, res: Response) => {
   }
 });
 
-// Update user details.
+// Define a route to update user details
 router.patch("/user", updateSingleUser, async (req: Request, res: Response) => {
   try {
     // Destructure and validate request body.
     const { user_id, name, dob, bio, location } = req.body;
-
-    // Check for required fields and validation here...
 
     // Fields to modify
     const fields: Record<string, any> = {};
@@ -109,20 +107,24 @@ router.patch("/user", updateSingleUser, async (req: Request, res: Response) => {
     if (bio !== undefined) fields.bio = bio;
     if (location !== undefined) fields.location = location;
 
-    // Update user details
+    // Update user details using User.updateOne()
     const result: any = await User.updateOne({ user_id: user_id }, fields);
+
+    // Check if any documents were modified
     if (result.modifiedCount === 0) {
       // If no documents were modified, the user with the specified ID was not found.
+      console.log("No users were found in the database to update!");
       return res.status(404).json({
         status: "error",
         message: "No user found",
         details: "No users were found in the database.",
       });
     } else {
-      // Get updated user.
+      // Get the updated user details using User.findOne()
       let updatedUser = await User.findOne({ user_id: user_id });
 
       // User details updated successfully
+      console.log("User modified successfully!");
       res.status(200).json({
         status: "success",
         message: "User details updated successfully",
