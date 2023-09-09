@@ -9,6 +9,7 @@ import {
   createNewUser,
   deleteSingleUser,
   updateSingleUser,
+  updateUserPassword,
 } from "../middlewares/user_route";
 
 const router = express.Router();
@@ -108,10 +109,17 @@ router.patch("/user", updateSingleUser, async (req: Request, res: Response) => {
     if (location !== undefined) fields.location = location;
 
     // Update user details using User.updateOne()
-    const result: any = await User.updateOne({ user_id: user_id }, fields);
+    const result: any = await User.findOneAndUpdate(
+      { user_id: user_id },
+      fields,
+      {
+        runValidators: true,
+        new: true,
+      }
+    );
 
     // Check if any documents were modified
-    if (result.modifiedCount === 0) {
+    if (!result) {
       // If no documents were modified, the user with the specified ID was not found.
       console.log("No users were found in the database to update!");
       return res.status(404).json({
@@ -120,20 +128,17 @@ router.patch("/user", updateSingleUser, async (req: Request, res: Response) => {
         details: "No users were found in the database.",
       });
     } else {
-      // Get the updated user details using User.findOne()
-      let updatedUser = await User.findOne({ user_id: user_id });
-
       // User details updated successfully
-      console.log("User modified successfully!");
+      console.log("User details updated successfully!");
       res.status(200).json({
         status: "success",
         message: "User details updated successfully",
-        details: updatedUser,
+        details: result,
       });
     }
   } catch (err: any) {
     // Handle other errors
-    console.error("User updation failed:", err);
+    console.error("User details updation failed:", err);
     res.status(500).json({
       status: "error",
       message: "Internal Server Error",
@@ -143,6 +148,56 @@ router.patch("/user", updateSingleUser, async (req: Request, res: Response) => {
 });
 
 // Update user password
+router.patch(
+  "/user/password",
+  updateUserPassword,
+  async (req: Request, res: Response) => {
+    try {
+      // Destructure and validate request body.
+      const { user_id, new_password } = req.body;
+
+      // Fields to modify
+      const fields: Record<string, any> = { password: new_password };
+
+      // Update user's password details using Password.updateOne()
+      const result: any = await Password.findOneAndUpdate(
+        { user_id: user_id },
+        fields,
+        {
+          runValidators: true,
+          new: true,
+        }
+      );
+
+      // Check if any documents were modified
+      if (!result) {
+        // If no documents were modified, the user with the specified ID was not found.
+        console.log("No users were found in the database to update!");
+        return res.status(404).json({
+          status: "error",
+          message: "No user found",
+          details: "No users were found in the database.",
+        });
+      } else {
+        // User details updated successfully
+        console.log("User's password updated successfully!");
+        res.status(200).json({
+          status: "success",
+          message: "User's password updated successfully",
+          details: result,
+        });
+      }
+    } catch (err: any) {
+      // Handle other errors
+      console.error("User's password updation failed:", err);
+      res.status(500).json({
+        status: "error",
+        message: "Internal Server Error",
+        details: err.message,
+      });
+    }
+  }
+);
 
 // Define a route to delete a user by their user_id
 router.delete(

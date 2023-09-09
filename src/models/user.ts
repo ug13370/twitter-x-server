@@ -53,7 +53,7 @@ const userSchema = new mongoose.Schema(
     primary_media_id: {},
     secondary_media_id: {},
   },
-  { timestamps: true } // Adds createdAt and updatedAt fields
+  { timestamps: true, validateBeforeSave: true } // Adds createdAt and updatedAt fields
 );
 
 // Pre-save hook to generate a unique user_id if not provided

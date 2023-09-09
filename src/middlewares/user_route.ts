@@ -2,6 +2,7 @@ import Joi, { CustomHelpers, ValidationResult } from "joi";
 import { Request, Response, NextFunction, RequestHandler } from "express";
 import isEmailIdExisting from "../validators/isEmailExisting";
 import isUserIdExisting from "../validators/isUserIdExisting";
+import isPassword from "../validators/isPassword";
 
 const createNewUser: RequestHandler = async (
   req: Request,
@@ -66,6 +67,7 @@ const updateSingleUser: RequestHandler = async (
       bio: Joi.string().optional(),
       location: Joi.string().optional(),
     }).options({ abortEarly: false });
+
     try {
       // Validate the request body against the schema
       await reqSchema.validateAsync(req.body);
@@ -86,6 +88,47 @@ const updateSingleUser: RequestHandler = async (
     res.status(500).json({
       status: "error",
       message: "An error occurred while running user updation middleware.",
+      details: err.details,
+    });
+  }
+};
+
+const updateUserPassword: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    // Define the request schema using Joi inside the function
+    const reqSchema = Joi.object({
+      user_id: Joi.string()
+        .regex(/^@/)
+        .required()
+        .external(isUserIdExistingInDB),
+      new_password: Joi.string().required().external(isPasswordValid),
+    }).options({ abortEarly: false });
+
+    try {
+      // Validate the request body against the schema
+      await reqSchema.validateAsync(req.body);
+
+      // If validation passes, continue with the request handling.
+      console.info("User's password updation route middleware passed.");
+      next();
+    } catch (err: any) {
+      // If there's a validation error, respond with a 422 status and error message.
+      console.error("User's password updation route middleware failed.");
+      res.status(422).json({
+        status: "error",
+        message: "Incorrect payload",
+        details: err.details,
+      });
+    }
+  } catch (err: any) {
+    res.status(500).json({
+      status: "error",
+      message:
+        "An error occurred while running user's password updation middleware.",
       details: err.details,
     });
   }
@@ -156,7 +199,6 @@ const isEmailIdExistingInDB = async (
         external: "email_id already exists",
       });
   } catch (error) {
-    // Handle the error appropriately
     return helpers.message({
       external: "An error occurred while checking email_id existence",
     });
@@ -175,7 +217,6 @@ const isUserIdNotExistingInDB = async (
         external: "user_id already exists",
       });
   } catch (error) {
-    // Handle the error appropriately
     return helpers.message({
       external: "An error occurred while checking user_id existence",
     });
@@ -194,11 +235,31 @@ const isUserIdExistingInDB = async (
         external: "user_id does not exists",
       });
   } catch (error) {
-    // Handle the error appropriately
     return helpers.message({
       external: "An error occurred while checking user_id existence",
     });
   }
 };
 
-export { createNewUser, updateSingleUser, deleteSingleUser };
+const isPasswordValid = async (
+  value: string,
+  helpers: CustomHelpers<string>
+): Promise<any> => {
+  try {
+    let res = isPassword(value);
+
+    if (res) return value;
+    else return helpers.message({ external: "Invalid Password" });
+  } catch (error) {
+    return helpers.message({
+      external: "An error occurred while checking password validity",
+    });
+  }
+};
+
+export {
+  createNewUser,
+  updateSingleUser,
+  deleteSingleUser,
+  updateUserPassword,
+};
