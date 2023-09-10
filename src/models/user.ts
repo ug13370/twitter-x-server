@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
-import isEmail from "../validators/isEmail";
 import Password from "./password";
+import isEmail from "../validators/isEmail";
+import UserRelationship from "./user-relationship";
 
 // Define the interface for User documents
 interface UserDocument extends mongoose.Document {
@@ -73,9 +74,25 @@ userSchema.pre("deleteOne", async function (next) {
   try {
     // Delete a single password based on the filter criteria
     await Password.deleteOne(this.getFilter());
-
     console.log("Password de-registered successfully.");
-    next();
+
+    try {
+      const condition = {
+        $or: [
+          { follower_user_id: this.getFilter().user_id },
+          { followee_user_id: this.getFilter().user_id },
+        ],
+      };
+
+      // Delete all user relationships.
+      await UserRelationship.deleteMany(condition);
+      console.log("User relationships deleted successfully.");
+      next();
+    } catch (err: any) {
+      // Handle any errors that may occur during user relationship deletion
+      console.error("User relationship deletion failed:", err);
+      next(err);
+    }
   } catch (err: any) {
     // Handle any errors that may occur during password deletion
     console.error("Password de-registration failed:", err);
@@ -88,9 +105,18 @@ userSchema.pre("deleteMany", async function (next) {
   try {
     // Delete all passwords
     await Password.deleteMany({});
-
     console.log("Passwords de-registered successfully.");
-    next();
+
+    try {
+      // Delete all user relationships.
+      await UserRelationship.deleteMany({});
+      console.log("User relationships deleted successfully.");
+      next();
+    } catch (err: any) {
+      // Handle any errors that may occur during user relationship deletion
+      console.error("User relationships deletion failed:", err);
+      next(err);
+    }
   } catch (err: any) {
     // Handle any errors that may occur during password deletion
     console.error("Passwords de-registration failed:", err);
