@@ -2,7 +2,7 @@
 require("./db/mongoose");
 
 // Initialize Routers
-const userRouter = require("./routers/user");
+const userRouter = require("./routers/user/router");
 
 // Express Import
 const express = require("express");
