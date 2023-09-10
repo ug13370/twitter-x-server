@@ -4,13 +4,15 @@ import { Request, Response } from "express";
 
 // Model Imports
 import User from "../models/user";
-import Password from "../models/password";
 import {
   createNewUser,
-  deleteSingleUser,
   updateSingleUser,
+  deleteSingleUser,
   updateUserPassword,
+  followOrUnfollowUser,
 } from "../middlewares/user_route";
+import Password from "../models/password";
+import UserRelationship from "../models/user-relationship";
 
 const router = express.Router();
 
@@ -147,7 +149,7 @@ router.patch("/user", updateSingleUser, async (req: Request, res: Response) => {
   }
 });
 
-// Update user password
+// Define a route to update user password
 router.patch(
   "/user/password",
   updateUserPassword,
@@ -190,6 +192,76 @@ router.patch(
     } catch (err: any) {
       // Handle other errors
       console.error("User's password updation failed:", err);
+      res.status(500).json({
+        status: "error",
+        message: "Internal Server Error",
+        details: err.message,
+      });
+    }
+  }
+);
+
+// Define a route to follow a user.
+router.post(
+  "/user/follow",
+  followOrUnfollowUser,
+  async (req: Request, res: Response) => {
+    try {
+      // Destructure request body.
+      const { follower_user_id, followee_user_id } = req.body;
+
+      // Create a new user relationship with relationship details
+      const userRelationshipCreationRes = await handleUserToFollow({
+        follower_user_id,
+        followee_user_id,
+      });
+
+      // Check if user relationship creation was successful
+      if (userRelationshipCreationRes.status === "success") {
+        // User relationship creation passed.
+        res.status(201).json(userRelationshipCreationRes);
+      } else {
+        // User relationship creation failed
+        res.status(422).json(userRelationshipCreationRes);
+      }
+    } catch (err: any) {
+      // Handle any errors that may occur during the creation process
+      console.error("User following failed:", err);
+      res.status(500).json({
+        status: "error",
+        message: "Internal Server Error",
+        details: err.message,
+      });
+    }
+  }
+);
+
+// Define a route to unfollow a user.
+router.delete(
+  "/user/unfollow",
+  followOrUnfollowUser,
+  async (req: Request, res: Response) => {
+    try {
+      // Destructure request body.
+      const { follower_user_id, followee_user_id } = req.body;
+
+      // Delete a user relationship with relationship details
+      const userRelationshipDeletionRes = await handleUserToUnfollow({
+        follower_user_id,
+        followee_user_id,
+      });
+
+      // Check if user relationship deletion was successful
+      if (userRelationshipDeletionRes.status === "success") {
+        // User relationship deletion passed.
+        res.status(201).json(userRelationshipDeletionRes);
+      } else {
+        // User relationship deletion failed
+        res.status(422).json(userRelationshipDeletionRes);
+      }
+    } catch (err: any) {
+      // Handle any errors that may occur during the deletion process
+      console.error("User unfollowing failed:", err);
       res.status(500).json({
         status: "error",
         message: "Internal Server Error",
@@ -323,6 +395,74 @@ const handleRegisterNewPassword = async (passwordDetails: {
     };
   } catch (err: any) {
     console.error("Password registration failed");
+    return { status: "error", message: err._message, details: err.message };
+  }
+};
+
+const handleUserToFollow = async (relationshipDetails: {
+  follower_user_id: string;
+  followee_user_id: string;
+}) => {
+  try {
+    // Create a new user relationship instance.
+    const userRelnInstance = new UserRelationship(relationshipDetails);
+
+    // Save it in database.
+    let savedRes: any = await userRelnInstance.save();
+    let { follower_user_id, followee_user_id } = savedRes._doc;
+
+    // Returning password details.
+    console.info(
+      `${follower_user_id} followed ${followee_user_id} successfully!`
+    );
+    return {
+      status: "success",
+      message: "User followed successfully!",
+      details: `${follower_user_id} followed ${followee_user_id} successfully!`,
+    };
+  } catch (err: any) {
+    console.error("User relationship registration failed");
+    return { status: "error", message: err._message, details: err.message };
+  }
+};
+
+const handleUserToUnfollow = async (relationshipDetails: {
+  follower_user_id: string;
+  followee_user_id: string;
+}) => {
+  try {
+    // Delete relationship.
+    const deleteRes = await UserRelationship.deleteOne(relationshipDetails);
+
+    // Check if the relationship was successfully deleted
+    if (deleteRes.deletedCount === 1) {
+      // User relationship deleted successfully
+      console.info(
+        "User unfollowed " +
+          relationshipDetails.followee_user_id +
+          " successfully!"
+      );
+      return {
+        status: "success",
+        message:
+          "User unfollowed " +
+          relationshipDetails.followee_user_id +
+          " successfully!",
+        details: deleteRes,
+      };
+    } else {
+      // User not found with the provided user_id
+      console.error(
+        "User can't unfollow " + relationshipDetails.followee_user_id
+      );
+      return {
+        status: "error",
+        message: "User can't unfollow " + relationshipDetails.followee_user_id,
+        details: "User does not follow " + relationshipDetails.followee_user_id,
+      };
+    }
+  } catch (err: any) {
+    console.error("User relationship deregistration failed");
     return { status: "error", message: err._message, details: err.message };
   }
 };

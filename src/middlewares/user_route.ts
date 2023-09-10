@@ -174,6 +174,49 @@ const deleteSingleUser: RequestHandler = async (
   }
 };
 
+const followOrUnfollowUser: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    // Define the request schema using Joi inside the function
+    const reqSchema = Joi.object({
+      follower_user_id: Joi.string()
+        .regex(/^@/)
+        .required()
+        .external(isUserIdExistingInDB),
+      followee_user_id: Joi.string()
+        .regex(/^@/)
+        .required()
+        .external(isUserIdExistingInDB),
+    }).options({ abortEarly: false });
+
+    try {
+      // Validate the request param against the schema
+      await reqSchema.validateAsync(req.body);
+
+      // If validation passes, continue with the request handling.
+      console.info("follow/unfollow user route middleware passed.");
+      next();
+    } catch (err: any) {
+      // If there's a validation error, respond with a 422 status and error message.
+      console.error("follow/unfollow user route middleware failed.");
+      res.status(422).json({
+        status: "error",
+        message: "Incorrect payload",
+        details: err.details,
+      });
+    }
+  } catch (err: any) {
+    res.status(500).json({
+      status: "error",
+      message: "An error occurred while follow/unfollow user middleware.",
+      details: err.details,
+    });
+  }
+};
+
 /** Helper functions */
 const hasTwoSpecialChars = (value: string, helpers: CustomHelpers<string>) => {
   const specialChars = value.match(/[!@#$%^&*()_+{}\[\]:;<>,.?~\\]/g) || [];
@@ -262,4 +305,5 @@ export {
   updateSingleUser,
   deleteSingleUser,
   updateUserPassword,
+  followOrUnfollowUser,
 };

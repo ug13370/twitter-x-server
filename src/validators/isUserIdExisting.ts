@@ -7,8 +7,13 @@ async function isUserIdExisting(userId: string): Promise<boolean> {
     const res = await User.exists({ user_id: userId });
 
     // If instance exists return false otherwise return true.
-    if (res === null) return false;
-    else return true;
+    if (res === null) {
+      console.log("User ID exists.");
+      return false;
+    } else {
+      console.log("User ID does not exists.");
+      return true;
+    }
   } catch (err) {
     // Handle any errors that may occur during the existence check
     console.error("User ID existence check failed:", err);
