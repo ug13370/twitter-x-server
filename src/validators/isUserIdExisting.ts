@@ -1,4 +1,4 @@
-import User from "../models/user"; // Import your User model
+import User from "../models/User/user"; // Import your User model
 
 // Function to check if an user ID already exists in the database
 async function isUserIdExisting(userId: string): Promise<boolean> {

@@ -9,7 +9,7 @@ import {
   handleUserToUnfollow,
   handleRegisterNewPassword,
 } from "./helpers";
-import User from "../../models/user";
+import User from "../../models/User/user";
 import {
   createNewUser,
   updateSingleUser,
@@ -17,7 +17,7 @@ import {
   updateUserPassword,
   followOrUnfollowUser,
 } from "../../middlewares/user_route";
-import Password from "../../models/password";
+import Password from "../../models/User/password";
 
 const router = express.Router();
 

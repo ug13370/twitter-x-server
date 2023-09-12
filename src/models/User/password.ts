@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import isPassword from "../validators/isPassword";
+import isPassword from "../../validators/isPassword";
 
 const passwordSchema = new mongoose.Schema(
   {

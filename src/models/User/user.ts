@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import Password from "./password";
-import isEmail from "../validators/isEmail";
+import isEmail from "../../validators/isEmail";
 import UserRelationship from "./user-relationship";
 
 // Define the interface for User documents

@@ -1,6 +1,6 @@
-import User from "../../models/user";
-import Password from "../../models/password";
-import UserRelationship from "../../models/user-relationship";
+import User from "../../models/User/user";
+import Password from "../../models/User/password";
+import UserRelationship from "../../models/User/user-relationship";
 
 /** Helper Functions */
 const handleCreateNewUser = async (userDetails: {
