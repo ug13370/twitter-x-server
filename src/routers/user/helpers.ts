@@ -1,6 +1,6 @@
 import User from "../../models/User/user";
 import Password from "../../models/User/password";
-import UserRelationship from "../../models/User/user-relationship";
+import UserUserRelationship from "../../models/User/user-user-relationship";
 
 /** Helper Functions */
 const handleCreateNewUser = async (userDetails: {
@@ -62,7 +62,7 @@ const handleUserToFollow = async (relationshipDetails: {
 }) => {
   try {
     // Create a new user relationship instance.
-    const userRelnInstance = new UserRelationship(relationshipDetails);
+    const userRelnInstance = new UserUserRelationship(relationshipDetails);
 
     // Save it in database.
     let savedRes: any = await userRelnInstance.save();
@@ -89,7 +89,7 @@ const handleUserToUnfollow = async (relationshipDetails: {
 }) => {
   try {
     // Delete relationship.
-    const deleteRes = await UserRelationship.deleteOne(relationshipDetails);
+    const deleteRes = await UserUserRelationship.deleteOne(relationshipDetails);
 
     // Check if the relationship was successfully deleted
     if (deleteRes.deletedCount === 1) {
