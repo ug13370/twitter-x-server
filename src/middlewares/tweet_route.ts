@@ -58,6 +58,33 @@ const createNewTweet: RequestHandler = async (
   }
 };
 
+const fetchAllTweets: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const reqSchema = Joi.object({
+    user_id: Joi.string().regex(/^@/).required().external(isUserIdExistingInDB),
+  }).options({ abortEarly: false });
+
+  try {
+    // Validate the request param against the schema
+    await reqSchema.validateAsync(req.params);
+
+    // If validation passes, continue with the request handling.
+    console.info("Fetch all tweets route middleware passed.");
+    next();
+  } catch (err: any) {
+    // If there's a validation error, respond with a 422 status and error message.
+    console.error("Fetch all tweets route middleware failed.");
+    res.status(422).json({
+      status: "error",
+      message: "Incorrect payload",
+      details: err.details,
+    });
+  }
+};
+
 /** Helpers */
 const isUserIdExistingInDB = async (
   value: string,
@@ -77,4 +104,4 @@ const isUserIdExistingInDB = async (
   }
 };
 
-export { createNewTweet };
+export { createNewTweet, fetchAllTweets };

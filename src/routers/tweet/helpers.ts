@@ -13,14 +13,14 @@ const handleCreateNewTweet = async (tweetDetails: {
 
     // Save it in database.
     let savedRes: any = await tweetInstance.save();
-    let { tweet_id, user_id, text_content, created_at } = savedRes._doc;
+    let { tweet_id, user_id, text_content, createdAt } = savedRes._doc;
 
     // Returning tweet details.
     console.info("Tweet creation successfull");
     return {
       status: "success",
       message: "Tweet created successfully",
-      details: { tweet_id, user_id, text_content, created_at },
+      details: { tweet_id, user_id, text_content, createdAt },
     };
   } catch (err: any) {
     console.info("Tweet creation failed");
@@ -42,10 +42,10 @@ const handleRegisterTweetMedias = async (mediaDetails: {
       let media: { data: String; description: String } = mediaDetails.medias[i];
 
       // Create a new media instance.
-      const tweetInstance = new Media({ type: "tweet", data: media.data });
+      const mediaInstance = new Media({ type: "tweet", data: media.data });
 
       // Save it in database.
-      let tweetSavedRes: any = await tweetInstance.save();
+      let tweetSavedRes: any = await mediaInstance.save();
       let { media_id } = tweetSavedRes._doc;
 
       // Append into saved media.
@@ -56,10 +56,11 @@ const handleRegisterTweetMedias = async (mediaDetails: {
         tweet_id: mediaDetails.tweet_id,
         media_id,
         description: media.description,
+        order: i + 1,
       });
 
       // Save it in database.
-      let tweetMediaRelnSavedRes: any = await tweetInstance.save();
+      let tweetMediaRelnSavedRes: any = await tweetMediaRelnInstance.save();
     }
 
     // Returning tweet media details.
@@ -70,10 +71,44 @@ const handleRegisterTweetMedias = async (mediaDetails: {
       details: { medias: savedMedias },
     };
   } catch (err: any) {
-    console.info("Media registration failed");
-    console.log(err);
+    console.info("Media registration failed:", err);
     return { status: "error", message: err._message, details: err.message };
   }
 };
 
-export { handleCreateNewTweet, handleRegisterTweetMedias };
+const handleFetchAllTweetsForAUser = async (user_id: string) => {
+  try {
+    let tweets = await Promise.all(
+      (
+        await Tweet.find({ user_id })
+      ).map(async ({ tweet_id, user_id, text_content }) => {
+        let medias = await Promise.all(
+          (
+            await TweetMediaRelationship.find({ tweet_id })
+          ).map(async ({ media_id, description, order }) => {
+            let { data }: any = await Media.findOne({ media_id: media_id });
+            return { media_id, data, description, order };
+          })
+        );
+        return { tweet_id, user_id, text_content, medias };
+      })
+    );
+
+    // Returning all tweets.
+    console.info("Tweet fetched successfully");
+    return {
+      status: "success",
+      message: "Tweet fetched successfully",
+      details: tweets,
+    };
+  } catch (err: any) {
+    console.info("Tweets fetching failed:", err);
+    return { status: "error", message: err._message, details: err.message };
+  }
+};
+
+export {
+  handleCreateNewTweet,
+  handleRegisterTweetMedias,
+  handleFetchAllTweetsForAUser,
+};

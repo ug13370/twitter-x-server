@@ -22,13 +22,7 @@ const tweetMediaRelationshipSchema = new mongoose.Schema(
   { timestamps: true, validateBeforeSave: true }
 );
 
-// Define a compound unique index on parent_tweet_id and child_tweet_id
-tweetMediaRelationshipSchema.index(
-  { parent_tweet_id: 1, child_tweet_id: 1 },
-  { unique: true }
-);
-
-// Create the Password model
+// Create the Tweet Media relationship model
 const TweetMediaRelationship = mongoose.model(
   "TweetMediaRelationship",
   tweetMediaRelationshipSchema

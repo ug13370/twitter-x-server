@@ -1,7 +1,11 @@
+import {
+  handleCreateNewTweet,
+  handleRegisterTweetMedias,
+  handleFetchAllTweetsForAUser,
+} from "./helpers";
 import express from "express";
 import { Request, Response } from "express";
-import { handleCreateNewTweet, handleRegisterTweetMedias } from "./helpers";
-import { createNewTweet } from "../../middlewares/tweet_route";
+import { createNewTweet, fetchAllTweets } from "../../middlewares/tweet_route";
 
 const router = express.Router();
 
@@ -34,7 +38,7 @@ router.post("/tweet", createNewTweet, async (req: Request, res: Response) => {
           user_id: tweetCreationRes.details.user_id,
           tweet_id: tweetCreationRes.details.tweet_id,
           medias: mediasRegistrationRes.details.medias,
-          created_at: tweetCreationRes.details.created_at,
+          created_at: tweetCreationRes.details.createdAt,
           text_content: tweetCreationRes.details.text_content,
         });
       } else {
@@ -58,7 +62,38 @@ router.post("/tweet", createNewTweet, async (req: Request, res: Response) => {
 // Edit a tweet
 // Like/Dislike a tweet
 // Fetch timeline setwise.
-// Fetch all posts for a particular user setwise.
+// Fetch all posts for a particular user.
+router.get(
+  "/tweets/:user_id",
+  fetchAllTweets,
+  async (req: Request, res: Response) => {
+    try {
+      const tweetsFetchRes = await handleFetchAllTweetsForAUser(
+        req.params.user_id
+      );
+
+      if (tweetsFetchRes.status === "success") {
+        // Returning tweet details.
+        console.info("Tweet fetched successfully");
+        res.status(200).send({
+          status: "success",
+          message: "Tweet fetched successfully",
+          details: tweetsFetchRes.details,
+        });
+      } else {
+        // Tweets fetching failed.
+        res.status(422).json(tweetsFetchRes);
+      }
+    } catch (err: any) {
+      console.error("Tweets fetching failed:", err);
+      res.status(500).json({
+        status: "error",
+        message: "Internal Server Error",
+        details: err.message,
+      });
+    }
+  }
+);
 // Fetch all replies for a particular user setwise.
 // Fetch all medias.
 // Fetch all like medias.
