@@ -14,7 +14,7 @@ const mediaSchema = new mongoose.Schema(
       required: [true, "media type is required!"],
     },
     data: {
-      type: Number,
+      type: String,
       required: [true, "media data is required"],
     },
   },

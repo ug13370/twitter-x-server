@@ -29,9 +29,9 @@ tweetMediaRelationshipSchema.index(
 );
 
 // Create the Password model
-const TweetTweetRelationship = mongoose.model(
-  "TweetTweetRelationship",
+const TweetMediaRelationship = mongoose.model(
+  "TweetMediaRelationship",
   tweetMediaRelationshipSchema
 );
 
-export default TweetTweetRelationship;
+export default TweetMediaRelationship;
