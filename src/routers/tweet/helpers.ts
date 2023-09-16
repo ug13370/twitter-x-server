@@ -82,24 +82,33 @@ const handleFetchAllTweetsForAUser = async (user_id: string) => {
     let tweets = await Promise.all(
       (
         await Tweet.find({ user_id })
-      ).map(async ({ tweet_id, user_id, text_content, no_of_likes }) => {
-        let medias = await Promise.all(
-          (
-            await TweetMediaRelationship.find({ tweet_id })
-          ).map(async ({ media_id, description, order }) => {
-            let { data }: any = await Media.findOne({ media_id: media_id });
-            return { media_id, data, description, order };
-          })
-        );
-        return { tweet_id, user_id, text_content, no_of_likes, medias };
-      })
+      ).map(
+        async ({ tweet_id, user_id, text_content, no_of_likes, createdAt }) => {
+          let medias = await Promise.all(
+            (
+              await TweetMediaRelationship.find({ tweet_id })
+            ).map(async ({ media_id, description, order }) => {
+              let { data }: any = await Media.findOne({ media_id: media_id });
+              return { media_id, data, description, order };
+            })
+          );
+          return {
+            tweet_id,
+            user_id,
+            text_content,
+            createdAt,
+            no_of_likes,
+            medias,
+          };
+        }
+      )
     );
 
     // Returning all tweets.
-    console.info("Tweet fetched successfully");
+    console.info("Tweet fetched successfully for " + user_id);
     return {
       status: "success",
-      message: "Tweet fetched successfully",
+      message: "Tweet fetched successfully for " + user_id,
       details: tweets,
     };
   } catch (err: any) {

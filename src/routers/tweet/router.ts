@@ -12,6 +12,7 @@ import {
   giveFeedbackToATweet,
 } from "../../middlewares/tweet_route";
 import Tweet from "../../models/Tweet/tweet";
+import UserUserRelationship from "../../models/User/user-user-relationship";
 
 const router = express.Router();
 
@@ -99,10 +100,61 @@ router.patch(
     }
   }
 );
-// Fetch timeline setwise.
-// Fetch all posts for a particular user.
+
+// Fetch timeline
 router.get(
   "/tweets/:user_id",
+  fetchAllTweets,
+  async (req: Request, res: Response) => {
+    try {
+      const tweetsToFetchForUserId = [
+        req.params.user_id,
+        ...(
+          await UserUserRelationship.find({
+            follower_user_id: req.params.user_id,
+          })
+        ).map((relationship: any) => {
+          return relationship.followee_user_id;
+        }),
+      ];
+
+      let tweets: any = [];
+
+      for (let i = 0; i < tweetsToFetchForUserId.length; i++) {
+        const tweetsFetchRes = await handleFetchAllTweetsForAUser(
+          tweetsToFetchForUserId[i]
+        );
+        tweets = [...tweets, ...tweetsFetchRes.details];
+
+        if (tweetsFetchRes.status === "error") {
+          res.status(422).json(tweetsFetchRes);
+          break;
+        }
+      }
+
+      tweets.sort((a: any, b: any) => b.createdAt - a.createdAt);
+
+      // Returning tweet details.
+      console.info("All tweets fetched successfully");
+      res.status(200).send({
+        status: "success",
+        message: "All tweets fetched successfully",
+        details: tweets,
+      });
+    } catch (err: any) {
+      console.error("All tweets fetching failed:", err);
+      res.status(500).json({
+        status: "error",
+        message: "Internal Server Error",
+        details: err.message,
+      });
+    }
+  }
+);
+
+// Fetch all posts for a particular user.
+router.get(
+  "/my_tweets/:user_id",
   fetchAllTweets,
   async (req: Request, res: Response) => {
     try {
@@ -112,10 +164,10 @@ router.get(
 
       if (tweetsFetchRes.status === "success") {
         // Returning tweet details.
-        console.info("Tweet fetched successfully");
+        console.info("My tweets fetched successfully :- " + req.params.user_id);
         res.status(200).send({
           status: "success",
-          message: "Tweet fetched successfully",
+          message: "My tweets fetched successfully :- " + req.params.user_id,
           details: tweetsFetchRes.details,
         });
       } else {
@@ -123,7 +175,7 @@ router.get(
         res.status(422).json(tweetsFetchRes);
       }
     } catch (err: any) {
-      console.error("Tweets fetching failed:", err);
+      console.error("My tweets fetching failed:", err);
       res.status(500).json({
         status: "error",
         message: "Internal Server Error",
@@ -132,6 +184,7 @@ router.get(
     }
   }
 );
+
 // Fetch all replies for a particular user setwise.
 // Fetch all medias.
 // Fetch all like medias.
