@@ -1,6 +1,6 @@
 import Media from "../../models/Other/media";
-import Reaction from "../../models/Other/reaction";
 import Tweet from "../../models/Tweet/tweet";
+import Reaction from "../../models/Other/reaction";
 import TweetMediaRelationship from "../../models/Tweet/tweet-media-relationship";
 
 const handleCreateNewTweet = async (tweetDetails: {

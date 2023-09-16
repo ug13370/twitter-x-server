@@ -1,18 +1,24 @@
-import {
-  handleCreateNewTweet,
-  handleRegisterTweetMedias,
-  handleFetchAllTweetsForAUser,
-  handleFeedbackForATweet,
-} from "./helpers";
+/** Express Imports */
 import express from "express";
 import { Request, Response } from "express";
+
+/** Model Imports */
+import UserUserRelationship from "../../models/User/user-user-relationship";
+
+/** Helper Imports */
+import {
+  handleCreateNewTweet,
+  handleFeedbackForATweet,
+  handleRegisterTweetMedias,
+  handleFetchAllTweetsForAUser,
+} from "./helpers";
+
+/** Middleware Imports */
 import {
   createNewTweet,
   fetchAllTweets,
   giveFeedbackToATweet,
 } from "../../middlewares/tweet_route";
-import Tweet from "../../models/Tweet/tweet";
-import UserUserRelationship from "../../models/User/user-user-relationship";
 
 const router = express.Router();
 
