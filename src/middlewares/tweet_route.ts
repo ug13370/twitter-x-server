@@ -1,6 +1,8 @@
 import Joi, { CustomHelpers } from "joi";
 import isUserIdExisting from "../validators/isUserIdExisting";
 import { Request, Response, NextFunction, RequestHandler } from "express";
+import isTweetIdExisting from "../validators/isTweetIdExisting";
+import Reaction from "../models/Other/reaction";
 
 const createNewTweet: RequestHandler = async (
   req: Request,
@@ -85,6 +87,66 @@ const fetchAllTweets: RequestHandler = async (
   }
 };
 
+const giveFeedbackToATweet: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const reqSchema = Joi.object({
+    user_id: Joi.string().regex(/^@/).required().external(isUserIdExistingInDB),
+    tweet_id: Joi.string().required().external(isTweetIdExistingInDB),
+    feedback: Joi.boolean().required(),
+  })
+    .options({ abortEarly: false })
+    .external(async (value, helpers) => {
+      const { user_id, tweet_id, feedback } = value;
+      const foundDocument = await Reaction.findOne({
+        user_id: user_id,
+        tweet_id: tweet_id,
+      });
+
+      if (foundDocument === null) {
+        if (!feedback) {
+          console.log(
+            "User want to dislike a tweet which the user never liked."
+          );
+          return helpers.message({
+            external:
+              "User want to dislike a tweet which the user never liked.",
+          });
+        }
+      } else {
+        if (feedback) {
+          console.log(
+            "User want to like a tweet which the user already liked."
+          );
+          return helpers.message({
+            external: "User want to like a tweet which the user already liked.",
+          });
+        }
+      }
+
+      return value;
+    });
+
+  try {
+    // Validate the request param against the schema
+    await reqSchema.validateAsync(req.body);
+
+    // If validation passes, continue with the request handling.
+    console.info("Give feedback to a tweet route middleware passed.");
+    next();
+  } catch (err: any) {
+    // If there's a validation error, respond with a 422 status and error message.
+    console.error("Give feedback to a tweet route middleware failed.");
+    res.status(422).json({
+      status: "error",
+      message: "Incorrect payload",
+      details: err.details,
+    });
+  }
+};
+
 /** Helpers */
 const isUserIdExistingInDB = async (
   value: string,
@@ -104,4 +166,22 @@ const isUserIdExistingInDB = async (
   }
 };
 
-export { createNewTweet, fetchAllTweets };
+const isTweetIdExistingInDB = async (
+  value: string,
+  helpers: CustomHelpers<string>
+): Promise<any> => {
+  try {
+    let res = await isTweetIdExisting(value);
+    if (res) return value;
+    else
+      return helpers.message({
+        external: "tweet_id does not exists",
+      });
+  } catch (error) {
+    return helpers.message({
+      external: "An error occurred while checking tweet_id existence",
+    });
+  }
+};
+
+export { createNewTweet, fetchAllTweets, giveFeedbackToATweet };

@@ -2,10 +2,16 @@ import {
   handleCreateNewTweet,
   handleRegisterTweetMedias,
   handleFetchAllTweetsForAUser,
+  handleFeedbackForATweet,
 } from "./helpers";
 import express from "express";
 import { Request, Response } from "express";
-import { createNewTweet, fetchAllTweets } from "../../middlewares/tweet_route";
+import {
+  createNewTweet,
+  fetchAllTweets,
+  giveFeedbackToATweet,
+} from "../../middlewares/tweet_route";
+import Tweet from "../../models/Tweet/tweet";
 
 const router = express.Router();
 
@@ -61,6 +67,38 @@ router.post("/tweet", createNewTweet, async (req: Request, res: Response) => {
 
 // Edit a tweet
 // Like/Dislike a tweet
+router.patch(
+  "/tweet/feedback",
+  giveFeedbackToATweet,
+  async (req: Request, res: Response) => {
+    try {
+      // Destructure request body.
+      const { user_id, tweet_id, feedback } = req.body;
+
+      // Register Feedback
+      const feedbackRegRes = await handleFeedbackForATweet({
+        user_id,
+        tweet_id,
+        feedback,
+      });
+
+      // Check if feedback registration was successfull
+      if (feedbackRegRes.status === "success") {
+        res.status(201).json(feedbackRegRes);
+      } else {
+        // Feedback registrationn failed
+        res.status(422).json(feedbackRegRes);
+      }
+    } catch (err: any) {
+      console.error("Tweet feedback reg. failed:", err);
+      res.status(500).json({
+        status: "error",
+        message: "Internal Server Error",
+        details: err.message,
+      });
+    }
+  }
+);
 // Fetch timeline setwise.
 // Fetch all posts for a particular user.
 router.get(

@@ -23,6 +23,11 @@ const tweetSchema = new mongoose.Schema(
       enum: ["post", "comment"],
       required: [true, "tweet type is required!"],
     },
+    no_of_likes: {
+      min: 0,
+      default: 0,
+      type: Number,
+    },
   },
   { timestamps: true, validateBeforeSave: true }
 );

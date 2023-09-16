@@ -1,4 +1,5 @@
 import Media from "../../models/Other/media";
+import Reaction from "../../models/Other/reaction";
 import Tweet from "../../models/Tweet/tweet";
 import TweetMediaRelationship from "../../models/Tweet/tweet-media-relationship";
 
@@ -81,7 +82,7 @@ const handleFetchAllTweetsForAUser = async (user_id: string) => {
     let tweets = await Promise.all(
       (
         await Tweet.find({ user_id })
-      ).map(async ({ tweet_id, user_id, text_content }) => {
+      ).map(async ({ tweet_id, user_id, text_content, no_of_likes }) => {
         let medias = await Promise.all(
           (
             await TweetMediaRelationship.find({ tweet_id })
@@ -90,7 +91,7 @@ const handleFetchAllTweetsForAUser = async (user_id: string) => {
             return { media_id, data, description, order };
           })
         );
-        return { tweet_id, user_id, text_content, medias };
+        return { tweet_id, user_id, text_content, no_of_likes, medias };
       })
     );
 
@@ -107,8 +108,51 @@ const handleFetchAllTweetsForAUser = async (user_id: string) => {
   }
 };
 
+const handleFeedbackForATweet = async (feedbackDetails: {
+  user_id: string;
+  tweet_id: string;
+  feedback: boolean;
+}) => {
+  try {
+    // Incrementing/Decrementing no_of_likes based on the feedback flag.
+    const tweetUpdateRes = await Tweet.updateOne(
+      { tweet_id: feedbackDetails.tweet_id },
+      { $inc: { no_of_likes: feedbackDetails.feedback ? 1 : -1 } }
+    );
+
+    // If user liked the tweet.
+    if (feedbackDetails.feedback) {
+      // Registering user's reaction.
+      const newReactionInstance = new Reaction({
+        user_id: feedbackDetails.user_id,
+        tweet_id: feedbackDetails.tweet_id,
+      });
+
+      // Saving in DB.
+      const reactionCreationRes = await newReactionInstance.save();
+    } else {
+      const reactionDeletionRes = await Reaction.deleteOne({
+        user_id: feedbackDetails.user_id,
+        tweet_id: feedbackDetails.tweet_id,
+      });
+    }
+
+    // Feedback registered successfully.
+    console.info("Tweet feedback reg. successfully");
+    return {
+      status: "success",
+      message: "Tweet feedback reg. successfully",
+      details: tweetUpdateRes,
+    };
+  } catch (err: any) {
+    console.info("Tweet feedback reg. failed:", err);
+    return { status: "error", message: err._message, details: err.message };
+  }
+};
+
 export {
   handleCreateNewTweet,
+  handleFeedbackForATweet,
   handleRegisterTweetMedias,
   handleFetchAllTweetsForAUser,
 };
