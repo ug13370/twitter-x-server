@@ -1,8 +1,8 @@
 import Joi, { CustomHelpers } from "joi";
-import isUserIdExisting from "../validators/isUserIdExisting";
-import { Request, Response, NextFunction, RequestHandler } from "express";
-import isTweetIdExisting from "../validators/isTweetIdExisting";
 import Reaction from "../models/Other/reaction";
+import isUserIdExisting from "../validators/isUserIdExisting";
+import isTweetIdExisting from "../validators/isTweetIdExisting";
+import { Request, Response, NextFunction, RequestHandler } from "express";
 
 const createNewTweet: RequestHandler = async (
   req: Request,

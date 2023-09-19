@@ -217,6 +217,43 @@ const followOrUnfollowUser: RequestHandler = async (
   }
 };
 
+const login: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    // Define the request schema using Joi inside the function
+    const reqSchema = Joi.object({
+      email_id: Joi.string().required(),
+      password: Joi.string().required(),
+    }).options({ abortEarly: false });
+
+    try {
+      // Validate the request param against the schema
+      await reqSchema.validateAsync(req.body);
+
+      // If validation passes, continue with the request handling.
+      console.info("Login user route middleware passed.");
+      next();
+    } catch (err: any) {
+      // If there's a validation error, respond with a 422 status and error message.
+      console.error("Login user route middleware failed.");
+      res.status(422).json({
+        status: "error",
+        message: "Incorrect payload",
+        details: err.details,
+      });
+    }
+  } catch (err: any) {
+    res.status(500).json({
+      status: "error",
+      message: "An error occurred in login user middleware.",
+      details: err.details,
+    });
+  }
+};
+
 /** Helper functions */
 const hasTwoSpecialChars = (value: string, helpers: CustomHelpers<string>) => {
   const specialChars = value.match(/[!@#$%^&*()_+{}\[\]:;<>,.?~\\]/g) || [];
@@ -301,6 +338,7 @@ const isPasswordValid = async (
 };
 
 export {
+  login,
   createNewUser,
   updateSingleUser,
   deleteSingleUser,
