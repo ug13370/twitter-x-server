@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
-    "start-dev": "env-cmd ./config/dev.env nodemon src/index.ts",
-    "start-prod": "env-cmd ./config/prod.env nodemon src/index.ts",
-    "build-dev": "tsc -p ./tsconfig.json",
-    "build-prod": "tsc -p ./tsconfig.json"
+    "start-dev": "env-cmd ./config/dev.env node src/index.ts",
+    "start-prod": "env-cmd ./config/prod.env node src/index.ts",
+    "build-dev": "tsc -p tsconfig.json",
+    "build-prod": "tsc -p tsconfig.json"
   },
   "author": "",
   "license": "ISC",
