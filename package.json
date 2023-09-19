@@ -7,8 +7,8 @@
   "scripts": {
     "start-dev": "env-cmd ./config/dev.env ts-node src/index.ts",
     "start-prod": "env-cmd ./config/prod.env ts-node src/index.ts",
-    "build-dev": "tsc",
-    "build-prod": "tsc"
+    "build-dev": "npm install && tsc",
+    "build-prod": "npm install && tsc"
   },
   "author": "",
   "license": "ISC",
