@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,20 +7,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-const helpers_1 = require("./helpers");
-const user_route_1 = require("../../middlewares/user_route");
-const router = express_1.default.Router();
-router.post("/login", user_route_1.login, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+import express from "express";
+import { handleLogin } from "./helpers";
+import { login } from "../../middlewares/user_route";
+const router = express.Router();
+router.post("/login", login, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // Destructure request body.
         const { email_id, password } = req.body;
         // Validating email id and password.
-        const loginResult = yield (0, helpers_1.handleLogin)({ email_id, password });
+        const loginResult = yield handleLogin({ email_id, password });
         // Sending response according to the login result.
         if (loginResult.status === "success") {
             req.session.user_id = loginResult.details.user_id;
@@ -59,4 +54,5 @@ router.post("/logout", (req, res) => {
         }
     });
 });
-module.exports = router;
+export default router;
+//# sourceMappingURL=router.js.map

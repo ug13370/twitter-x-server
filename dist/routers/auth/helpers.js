@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,17 +7,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.handleLogin = void 0;
-const user_1 = __importDefault(require("../../models/User/user"));
-const password_1 = __importDefault(require("../../models/User/password"));
+import User from "../../models/User/user";
+import Password from "../../models/User/password";
 const handleLogin = (loginDetails) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // Fetching user with this particular email address.
-        const fetchedUser = yield user_1.default.findOne({ email_id: loginDetails.email_id });
+        const fetchedUser = yield User.findOne({ email_id: loginDetails.email_id });
         if (fetchedUser === null) {
             console.error("Wrong email id");
             return {
@@ -28,7 +22,7 @@ const handleLogin = (loginDetails) => __awaiter(void 0, void 0, void 0, function
             };
         }
         else {
-            const fetchedPassword = yield password_1.default.findOne({
+            const fetchedPassword = yield Password.findOne({
                 user_id: fetchedUser.user_id,
             });
             if (fetchedPassword.password !== loginDetails.password) {
@@ -53,4 +47,5 @@ const handleLogin = (loginDetails) => __awaiter(void 0, void 0, void 0, function
         return { status: "error", message: err._message, details: err.message };
     }
 });
-exports.handleLogin = handleLogin;
+export { handleLogin };
+//# sourceMappingURL=helpers.js.map

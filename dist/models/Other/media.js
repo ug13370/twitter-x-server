@@ -1,13 +1,8 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const mongoose_1 = __importDefault(require("mongoose"));
-const mediaSchema = new mongoose_1.default.Schema({
+import mongoose from "mongoose";
+const mediaSchema = new mongoose.Schema({
     media_id: {
-        type: mongoose_1.default.Schema.Types.ObjectId,
-        default: mongoose_1.default.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
+        default: mongoose.Types.ObjectId,
         unique: true,
     },
     type: {
@@ -22,5 +17,6 @@ const mediaSchema = new mongoose_1.default.Schema({
     },
 }, { timestamps: true, validateBeforeSave: true });
 // Create the Password model
-const Media = mongoose_1.default.model("Media", mediaSchema);
-exports.default = Media;
+const Media = mongoose.model("Media", mediaSchema);
+export default Media;
+//# sourceMappingURL=media.js.map

@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,16 +7,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const mongoose_1 = __importDefault(require("mongoose"));
-const password_1 = __importDefault(require("./password"));
-const isEmail_1 = __importDefault(require("../../validators/isEmail"));
-const user_user_relationship_1 = __importDefault(require("./user-user-relationship"));
+import mongoose from "mongoose";
+import Password from "./password";
+import isEmail from "../../validators/isEmail";
+import UserRelationship from "./user-user-relationship";
 // Create a Mongoose schema for the User
-const userSchema = new mongoose_1.default.Schema({
+const userSchema = new mongoose.Schema({
     user_id: {
         trim: true,
         type: String,
@@ -36,7 +31,7 @@ const userSchema = new mongoose_1.default.Schema({
         lowercase: true,
         required: [true, "Email Id is required."],
         validate: {
-            validator: isEmail_1.default,
+            validator: isEmail,
             message: (props) => `${props.value} is not a valid email Id!`,
         },
     },
@@ -61,7 +56,7 @@ userSchema.pre("deleteOne", function (next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             // Delete a single password based on the filter criteria
-            yield password_1.default.deleteOne(this.getFilter());
+            yield Password.deleteOne(this.getFilter());
             console.log("Password de-registered successfully.");
             try {
                 const condition = {
@@ -71,7 +66,7 @@ userSchema.pre("deleteOne", function (next) {
                     ],
                 };
                 // Delete all user relationships.
-                yield user_user_relationship_1.default.deleteMany(condition);
+                yield UserRelationship.deleteMany(condition);
                 console.log("User relationships deleted successfully.");
                 next();
             }
@@ -93,11 +88,11 @@ userSchema.pre("deleteMany", function (next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             // Delete all passwords
-            yield password_1.default.deleteMany({});
+            yield Password.deleteMany({});
             console.log("Passwords de-registered successfully.");
             try {
                 // Delete all user relationships.
-                yield user_user_relationship_1.default.deleteMany({});
+                yield UserRelationship.deleteMany({});
                 console.log("User relationships deleted successfully.");
                 next();
             }
@@ -115,5 +110,6 @@ userSchema.pre("deleteMany", function (next) {
     });
 });
 // Create the User model
-const User = mongoose_1.default.model("User", userSchema);
-exports.default = User;
+const User = mongoose.model("User", userSchema);
+export default User;
+//# sourceMappingURL=user.js.map

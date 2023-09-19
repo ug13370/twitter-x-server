@@ -1,10 +1,5 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const mongoose_1 = __importDefault(require("mongoose"));
-const tweetTweetRelationshipSchema = new mongoose_1.default.Schema({
+import mongoose from "mongoose";
+const tweetTweetRelationshipSchema = new mongoose.Schema({
     parent_tweet_id: {
         trim: true,
         type: String,
@@ -19,5 +14,6 @@ const tweetTweetRelationshipSchema = new mongoose_1.default.Schema({
 // Define a compound unique index on parent_tweet_id and child_tweet_id
 tweetTweetRelationshipSchema.index({ parent_tweet_id: 1, child_tweet_id: 1 }, { unique: true });
 // Create the Password model
-const TweetTweetRelationship = mongoose_1.default.model("TweetTweetRelationship", tweetTweetRelationshipSchema);
-exports.default = TweetTweetRelationship;
+const TweetTweetRelationship = mongoose.model("TweetTweetRelationship", tweetTweetRelationshipSchema);
+export default TweetTweetRelationship;
+//# sourceMappingURL=tweet-tweet-relationship.js.map

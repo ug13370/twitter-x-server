@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,30 +7,25 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.followOrUnfollowUser = exports.updateUserPassword = exports.deleteSingleUser = exports.updateSingleUser = exports.createNewUser = exports.login = void 0;
-const joi_1 = __importDefault(require("joi"));
-const isEmailExisting_1 = __importDefault(require("../validators/isEmailExisting"));
-const isUserIdExisting_1 = __importDefault(require("../validators/isUserIdExisting"));
-const isPassword_1 = __importDefault(require("../validators/isPassword"));
+import Joi from "joi";
+import isEmailIdExisting from "../validators/isEmailExisting";
+import isUserIdExisting from "../validators/isUserIdExisting";
+import isPassword from "../validators/isPassword";
 const createNewUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // Define the request schema using Joi inside the function
-        const reqSchema = joi_1.default.object({
-            user_id: joi_1.default.string()
+        const reqSchema = Joi.object({
+            user_id: Joi.string()
                 .regex(/^@/)
                 .required()
                 .external(isUserIdNotExistingInDB),
-            name: joi_1.default.string().required(),
-            email_id: joi_1.default.string()
+            name: Joi.string().required(),
+            email_id: Joi.string()
                 .email({ tlds: { allow: false } })
                 .required()
                 .external(isEmailIdExistingInDB),
-            password: joi_1.default.string().min(5).required().custom(hasTwoSpecialChars),
-            dob: joi_1.default.date().iso().required(),
+            password: Joi.string().min(5).required().custom(hasTwoSpecialChars),
+            dob: Joi.date().iso().required(),
         }).options({ abortEarly: false });
         try {
             // Validate the request body against the schema
@@ -58,19 +52,18 @@ const createNewUser = (req, res, next) => __awaiter(void 0, void 0, void 0, func
         });
     }
 });
-exports.createNewUser = createNewUser;
 const updateSingleUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // Define the request schema using Joi inside the function
-        const reqSchema = joi_1.default.object({
-            user_id: joi_1.default.string()
+        const reqSchema = Joi.object({
+            user_id: Joi.string()
                 .regex(/^@/)
                 .required()
                 .external(isUserIdExistingInDB),
-            name: joi_1.default.string().optional(),
-            dob: joi_1.default.date().iso().optional(),
-            bio: joi_1.default.string().optional(),
-            location: joi_1.default.string().optional(),
+            name: Joi.string().optional(),
+            dob: Joi.date().iso().optional(),
+            bio: Joi.string().optional(),
+            location: Joi.string().optional(),
         }).options({ abortEarly: false });
         try {
             // Validate the request body against the schema
@@ -97,16 +90,15 @@ const updateSingleUser = (req, res, next) => __awaiter(void 0, void 0, void 0, f
         });
     }
 });
-exports.updateSingleUser = updateSingleUser;
 const updateUserPassword = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // Define the request schema using Joi inside the function
-        const reqSchema = joi_1.default.object({
-            user_id: joi_1.default.string()
+        const reqSchema = Joi.object({
+            user_id: Joi.string()
                 .regex(/^@/)
                 .required()
                 .external(isUserIdExistingInDB),
-            new_password: joi_1.default.string().required().external(isPasswordValid),
+            new_password: Joi.string().required().external(isPasswordValid),
         }).options({ abortEarly: false });
         try {
             // Validate the request body against the schema
@@ -133,12 +125,11 @@ const updateUserPassword = (req, res, next) => __awaiter(void 0, void 0, void 0,
         });
     }
 });
-exports.updateUserPassword = updateUserPassword;
 const deleteSingleUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // Define the request schema using Joi inside the function
-        const reqSchema = joi_1.default.object({
-            user_id: joi_1.default.string()
+        const reqSchema = Joi.object({
+            user_id: Joi.string()
                 .regex(/^@/)
                 .required()
                 .external(isUserIdExistingInDB),
@@ -168,16 +159,15 @@ const deleteSingleUser = (req, res, next) => __awaiter(void 0, void 0, void 0, f
         });
     }
 });
-exports.deleteSingleUser = deleteSingleUser;
 const followOrUnfollowUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // Define the request schema using Joi inside the function
-        const reqSchema = joi_1.default.object({
-            follower_user_id: joi_1.default.string()
+        const reqSchema = Joi.object({
+            follower_user_id: Joi.string()
                 .regex(/^@/)
                 .required()
                 .external(isUserIdExistingInDB),
-            followee_user_id: joi_1.default.string()
+            followee_user_id: Joi.string()
                 .regex(/^@/)
                 .required()
                 .external(isUserIdExistingInDB),
@@ -207,13 +197,12 @@ const followOrUnfollowUser = (req, res, next) => __awaiter(void 0, void 0, void 
         });
     }
 });
-exports.followOrUnfollowUser = followOrUnfollowUser;
 const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // Define the request schema using Joi inside the function
-        const reqSchema = joi_1.default.object({
-            email_id: joi_1.default.string().required(),
-            password: joi_1.default.string().required(),
+        const reqSchema = Joi.object({
+            email_id: Joi.string().required(),
+            password: Joi.string().required(),
         }).options({ abortEarly: false });
         try {
             // Validate the request param against the schema
@@ -240,7 +229,6 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
         });
     }
 });
-exports.login = login;
 /** Helper functions */
 const hasTwoSpecialChars = (value, helpers) => {
     const specialChars = value.match(/[!@#$%^&*()_+{}\[\]:;<>,.?~\\]/g) || [];
@@ -253,7 +241,7 @@ const hasTwoSpecialChars = (value, helpers) => {
 };
 const isEmailIdExistingInDB = (value, helpers) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        let res = yield (0, isEmailExisting_1.default)(value);
+        let res = yield isEmailIdExisting(value);
         if (!res)
             return value;
         else
@@ -269,7 +257,7 @@ const isEmailIdExistingInDB = (value, helpers) => __awaiter(void 0, void 0, void
 });
 const isUserIdNotExistingInDB = (value, helpers) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        let res = yield (0, isUserIdExisting_1.default)(value);
+        let res = yield isUserIdExisting(value);
         if (!res)
             return value;
         else
@@ -285,7 +273,7 @@ const isUserIdNotExistingInDB = (value, helpers) => __awaiter(void 0, void 0, vo
 });
 const isUserIdExistingInDB = (value, helpers) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        let res = yield (0, isUserIdExisting_1.default)(value);
+        let res = yield isUserIdExisting(value);
         if (res)
             return value;
         else
@@ -301,7 +289,7 @@ const isUserIdExistingInDB = (value, helpers) => __awaiter(void 0, void 0, void 
 });
 const isPasswordValid = (value, helpers) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        let res = (0, isPassword_1.default)(value);
+        let res = isPassword(value);
         if (res)
             return value;
         else
@@ -313,3 +301,5 @@ const isPasswordValid = (value, helpers) => __awaiter(void 0, void 0, void 0, fu
         });
     }
 });
+export { login, createNewUser, updateSingleUser, deleteSingleUser, updateUserPassword, followOrUnfollowUser, };
+//# sourceMappingURL=user_route.js.map

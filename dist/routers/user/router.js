@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,23 +7,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
 // Express Import
-const express_1 = __importDefault(require("express"));
+import express from "express";
 // Model Imports
-const helpers_1 = require("./helpers");
-const user_1 = __importDefault(require("../../models/User/user"));
-const user_route_1 = require("../../middlewares/user_route");
-const password_1 = __importDefault(require("../../models/User/password"));
-const router = express_1.default.Router();
+import { handleUserToFollow, handleCreateNewUser, handleUserToUnfollow, handleRegisterNewPassword, } from "./helpers";
+import User from "../../models/User/user";
+import { createNewUser, updateSingleUser, deleteSingleUser, updateUserPassword, followOrUnfollowUser, } from "../../middlewares/user_route";
+import Password from "../../models/User/password";
+const router = express.Router();
 // Define a route to fetch all users
 router.get("/user", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // Fetch all users from the database
-        const users = yield user_1.default.find({});
+        const users = yield User.find({});
         // Check if users were found
         if (users.length > 0) {
             // Users fetched successfully
@@ -56,12 +51,12 @@ router.get("/user", (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
 }));
 // Define a route to create a new user
-router.post("/user", user_route_1.createNewUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.post("/user", createNewUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // Destructure request body.
         const { user_id, name, email_id, dob, password } = req.body;
         // Create a new user with user details
-        const userCreationRes = yield (0, helpers_1.handleCreateNewUser)({
+        const userCreationRes = yield handleCreateNewUser({
             user_id,
             name,
             email_id,
@@ -70,7 +65,7 @@ router.post("/user", user_route_1.createNewUser, (req, res) => __awaiter(void 0,
         // Check if user creation was successful
         if (userCreationRes.status === "success") {
             // Create a new password with user_id and password
-            const passwordCreationRes = yield (0, helpers_1.handleRegisterNewPassword)({
+            const passwordCreationRes = yield handleRegisterNewPassword({
                 user_id: userCreationRes.details.user_id,
                 password,
             });
@@ -100,7 +95,7 @@ router.post("/user", user_route_1.createNewUser, (req, res) => __awaiter(void 0,
     }
 }));
 // Define a route to update user details
-router.patch("/user", user_route_1.updateSingleUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.patch("/user", updateSingleUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // Destructure and validate request body.
         const { user_id, name, dob, bio, location } = req.body;
@@ -115,7 +110,7 @@ router.patch("/user", user_route_1.updateSingleUser, (req, res) => __awaiter(voi
         if (location !== undefined)
             fields.location = location;
         // Update user details using User.updateOne()
-        const result = yield user_1.default.findOneAndUpdate({ user_id: user_id }, fields, {
+        const result = yield User.findOneAndUpdate({ user_id: user_id }, fields, {
             runValidators: true,
             new: true,
         });
@@ -150,14 +145,14 @@ router.patch("/user", user_route_1.updateSingleUser, (req, res) => __awaiter(voi
     }
 }));
 // Define a route to update user password
-router.patch("/user/password", user_route_1.updateUserPassword, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.patch("/user/password", updateUserPassword, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // Destructure and validate request body.
         const { user_id, new_password } = req.body;
         // Fields to modify
         const fields = { password: new_password };
         // Update user's password details using Password.updateOne()
-        const result = yield password_1.default.findOneAndUpdate({ user_id: user_id }, fields, {
+        const result = yield Password.findOneAndUpdate({ user_id: user_id }, fields, {
             runValidators: true,
             new: true,
         });
@@ -192,12 +187,12 @@ router.patch("/user/password", user_route_1.updateUserPassword, (req, res) => __
     }
 }));
 // Define a route to follow a user.
-router.post("/user/follow", user_route_1.followOrUnfollowUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.post("/user/follow", followOrUnfollowUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // Destructure request body.
         const { follower_user_id, followee_user_id } = req.body;
         // Create a new user relationship with relationship details
-        const userRelationshipCreationRes = yield (0, helpers_1.handleUserToFollow)({
+        const userRelationshipCreationRes = yield handleUserToFollow({
             follower_user_id,
             followee_user_id,
         });
@@ -222,12 +217,12 @@ router.post("/user/follow", user_route_1.followOrUnfollowUser, (req, res) => __a
     }
 }));
 // Define a route to unfollow a user.
-router.delete("/user/unfollow", user_route_1.followOrUnfollowUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.delete("/user/unfollow", followOrUnfollowUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // Destructure request body.
         const { follower_user_id, followee_user_id } = req.body;
         // Delete a user relationship with relationship details
-        const userRelationshipDeletionRes = yield (0, helpers_1.handleUserToUnfollow)({
+        const userRelationshipDeletionRes = yield handleUserToUnfollow({
             follower_user_id,
             followee_user_id,
         });
@@ -252,10 +247,10 @@ router.delete("/user/unfollow", user_route_1.followOrUnfollowUser, (req, res) =>
     }
 }));
 // Define a route to delete a user by their user_id
-router.delete("/user/:user_id", user_route_1.deleteSingleUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.delete("/user/:user_id", deleteSingleUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // Attempt to delete the user based on their user_id
-        const deleteRes = yield user_1.default.deleteOne({ user_id: req.params.user_id });
+        const deleteRes = yield User.deleteOne({ user_id: req.params.user_id });
         // Check if the user was successfully deleted
         if (deleteRes.deletedCount === 1) {
             // User deleted successfully
@@ -290,7 +285,7 @@ router.delete("/user/:user_id", user_route_1.deleteSingleUser, (req, res) => __a
 router.delete("/user", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // Attempt to delete all users
-        const deleteRes = yield user_1.default.deleteMany({});
+        const deleteRes = yield User.deleteMany({});
         // Check if users were successfully deleted
         if (deleteRes.deletedCount > 0) {
             // Users deleted successfully
@@ -321,4 +316,5 @@ router.delete("/user", (req, res) => __awaiter(void 0, void 0, void 0, function*
         });
     }
 }));
-module.exports = router;
+export default router;
+//# sourceMappingURL=router.js.map

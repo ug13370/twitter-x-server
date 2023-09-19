@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,17 +7,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const tweet_1 = __importDefault(require("../models/Tweet/tweet"));
+import Tweet from "../models/Tweet/tweet";
 // Function to check if an user ID already exists in the database
 function isTweetIdExisting(tweetId) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             // Find a instance with the provided tweet_id
-            const res = yield tweet_1.default.exists({ tweet_id: tweetId });
+            const res = yield Tweet.exists({ tweet_id: tweetId });
             // If instance exists return false otherwise return true.
             if (res === null) {
                 console.log("User ID does not exists.");
@@ -36,4 +31,5 @@ function isTweetIdExisting(tweetId) {
         }
     });
 }
-exports.default = isTweetIdExisting;
+export default isTweetIdExisting;
+//# sourceMappingURL=isTweetIdExisting.js.map

@@ -48,4 +48,4 @@ router.post("/logout", (req: any, res: Response) => {
   });
 });
 
-module.exports = router;
+export default router;

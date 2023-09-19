@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,30 +7,25 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.giveFeedbackToATweet = exports.fetchAllTweets = exports.createNewTweet = void 0;
-const joi_1 = __importDefault(require("joi"));
-const reaction_1 = __importDefault(require("../models/Other/reaction"));
-const isUserIdExisting_1 = __importDefault(require("../validators/isUserIdExisting"));
-const isTweetIdExisting_1 = __importDefault(require("../validators/isTweetIdExisting"));
+import Joi from "joi";
+import Reaction from "../models/Other/reaction";
+import isUserIdExisting from "../validators/isUserIdExisting";
+import isTweetIdExisting from "../validators/isTweetIdExisting";
 const createNewTweet = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // Define the request schema using Joi inside the function
-        const mediaSchema = joi_1.default.object({
-            description: joi_1.default.string().max(100).optional(),
-            data: joi_1.default.string().required(),
+        const mediaSchema = Joi.object({
+            description: Joi.string().max(100).optional(),
+            data: Joi.string().required(),
         });
-        const reqSchema = joi_1.default.object({
-            user_id: joi_1.default.string()
+        const reqSchema = Joi.object({
+            user_id: Joi.string()
                 .regex(/^@/)
                 .required()
                 .external(isUserIdExistingInDB),
-            text_content: joi_1.default.string().min(1).optional(),
-            type: joi_1.default.string().valid("post", "comment").required(),
-            medias: joi_1.default.array().items(mediaSchema).optional(),
+            text_content: Joi.string().min(1).optional(),
+            type: Joi.string().valid("post", "comment").required(),
+            medias: Joi.array().items(mediaSchema).optional(),
         })
             .options({ abortEarly: false })
             .custom((value, helpers) => {
@@ -69,10 +63,9 @@ const createNewTweet = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         });
     }
 });
-exports.createNewTweet = createNewTweet;
 const fetchAllTweets = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const reqSchema = joi_1.default.object({
-        user_id: joi_1.default.string().regex(/^@/).required().external(isUserIdExistingInDB),
+    const reqSchema = Joi.object({
+        user_id: Joi.string().regex(/^@/).required().external(isUserIdExistingInDB),
     }).options({ abortEarly: false });
     try {
         // Validate the request param against the schema
@@ -91,17 +84,16 @@ const fetchAllTweets = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         });
     }
 });
-exports.fetchAllTweets = fetchAllTweets;
 const giveFeedbackToATweet = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const reqSchema = joi_1.default.object({
-        user_id: joi_1.default.string().regex(/^@/).required().external(isUserIdExistingInDB),
-        tweet_id: joi_1.default.string().required().external(isTweetIdExistingInDB),
-        feedback: joi_1.default.boolean().required(),
+    const reqSchema = Joi.object({
+        user_id: Joi.string().regex(/^@/).required().external(isUserIdExistingInDB),
+        tweet_id: Joi.string().required().external(isTweetIdExistingInDB),
+        feedback: Joi.boolean().required(),
     })
         .options({ abortEarly: false })
         .external((value, helpers) => __awaiter(void 0, void 0, void 0, function* () {
         const { user_id, tweet_id, feedback } = value;
-        const foundDocument = yield reaction_1.default.findOne({
+        const foundDocument = yield Reaction.findOne({
             user_id: user_id,
             tweet_id: tweet_id,
         });
@@ -140,11 +132,10 @@ const giveFeedbackToATweet = (req, res, next) => __awaiter(void 0, void 0, void 
         });
     }
 });
-exports.giveFeedbackToATweet = giveFeedbackToATweet;
 /** Helpers */
 const isUserIdExistingInDB = (value, helpers) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        let res = yield (0, isUserIdExisting_1.default)(value);
+        let res = yield isUserIdExisting(value);
         if (res)
             return value;
         else
@@ -160,7 +151,7 @@ const isUserIdExistingInDB = (value, helpers) => __awaiter(void 0, void 0, void 
 });
 const isTweetIdExistingInDB = (value, helpers) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        let res = yield (0, isTweetIdExisting_1.default)(value);
+        let res = yield isTweetIdExisting(value);
         if (res)
             return value;
         else
@@ -174,3 +165,5 @@ const isTweetIdExistingInDB = (value, helpers) => __awaiter(void 0, void 0, void
         });
     }
 });
+export { createNewTweet, fetchAllTweets, giveFeedbackToATweet };
+//# sourceMappingURL=tweet_route.js.map

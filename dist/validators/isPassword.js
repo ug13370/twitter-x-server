@@ -1,5 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 function isPassword(value) {
     // Check if the password is at least 5 characters long
     if (value.length < 5) {
@@ -19,4 +17,5 @@ function isPassword(value) {
     console.info("Password validation passed.");
     return true;
 }
-exports.default = isPassword;
+export default isPassword;
+//# sourceMappingURL=isPassword.js.map

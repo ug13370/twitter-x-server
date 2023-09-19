@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,19 +7,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.handleFetchAllTweetsForAUser = exports.handleRegisterTweetMedias = exports.handleFeedbackForATweet = exports.handleCreateNewTweet = void 0;
-const media_1 = __importDefault(require("../../models/Other/media"));
-const tweet_1 = __importDefault(require("../../models/Tweet/tweet"));
-const reaction_1 = __importDefault(require("../../models/Other/reaction"));
-const tweet_media_relationship_1 = __importDefault(require("../../models/Tweet/tweet-media-relationship"));
+import Media from "../../models/Other/media";
+import Tweet from "../../models/Tweet/tweet";
+import Reaction from "../../models/Other/reaction";
+import TweetMediaRelationship from "../../models/Tweet/tweet-media-relationship";
 const handleCreateNewTweet = (tweetDetails) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // Create a new tweet instance.
-        const tweetInstance = new tweet_1.default(tweetDetails);
+        const tweetInstance = new Tweet(tweetDetails);
         // Save it in database.
         let savedRes = yield tweetInstance.save();
         let { tweet_id, user_id, text_content, createdAt } = savedRes._doc;
@@ -38,21 +32,20 @@ const handleCreateNewTweet = (tweetDetails) => __awaiter(void 0, void 0, void 0,
         return { status: "error", message: err._message, details: err.message };
     }
 });
-exports.handleCreateNewTweet = handleCreateNewTweet;
 const handleRegisterTweetMedias = (mediaDetails) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let savedMedias = [];
         for (let i = 0; i < mediaDetails.medias.length; i++) {
             let media = mediaDetails.medias[i];
             // Create a new media instance.
-            const mediaInstance = new media_1.default({ type: "tweet", data: media.data });
+            const mediaInstance = new Media({ type: "tweet", data: media.data });
             // Save it in database.
             let tweetSavedRes = yield mediaInstance.save();
             let { media_id } = tweetSavedRes._doc;
             // Append into saved media.
             savedMedias.push(Object.assign(Object.assign({}, media), { media_id }));
             // Create a new tweet-media relationship instance.
-            const tweetMediaRelnInstance = new tweet_media_relationship_1.default({
+            const tweetMediaRelnInstance = new TweetMediaRelationship({
                 tweet_id: mediaDetails.tweet_id,
                 media_id,
                 description: media.description,
@@ -74,12 +67,11 @@ const handleRegisterTweetMedias = (mediaDetails) => __awaiter(void 0, void 0, vo
         return { status: "error", message: err._message, details: err.message };
     }
 });
-exports.handleRegisterTweetMedias = handleRegisterTweetMedias;
 const handleFetchAllTweetsForAUser = (user_id) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        let tweets = yield Promise.all((yield tweet_1.default.find({ user_id })).map(({ tweet_id, user_id, text_content, no_of_likes, createdAt }) => __awaiter(void 0, void 0, void 0, function* () {
-            let medias = yield Promise.all((yield tweet_media_relationship_1.default.find({ tweet_id })).map(({ media_id, description, order }) => __awaiter(void 0, void 0, void 0, function* () {
-                let { data } = yield media_1.default.findOne({ media_id: media_id });
+        let tweets = yield Promise.all((yield Tweet.find({ user_id })).map(({ tweet_id, user_id, text_content, no_of_likes, createdAt }) => __awaiter(void 0, void 0, void 0, function* () {
+            let medias = yield Promise.all((yield TweetMediaRelationship.find({ tweet_id })).map(({ media_id, description, order }) => __awaiter(void 0, void 0, void 0, function* () {
+                let { data } = yield Media.findOne({ media_id: media_id });
                 return { media_id, data, description, order };
             })));
             return {
@@ -104,15 +96,14 @@ const handleFetchAllTweetsForAUser = (user_id) => __awaiter(void 0, void 0, void
         return { status: "error", message: err._message, details: err.message };
     }
 });
-exports.handleFetchAllTweetsForAUser = handleFetchAllTweetsForAUser;
 const handleFeedbackForATweet = (feedbackDetails) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // Incrementing/Decrementing no_of_likes based on the feedback flag.
-        const tweetUpdateRes = yield tweet_1.default.updateOne({ tweet_id: feedbackDetails.tweet_id }, { $inc: { no_of_likes: feedbackDetails.feedback ? 1 : -1 } });
+        const tweetUpdateRes = yield Tweet.updateOne({ tweet_id: feedbackDetails.tweet_id }, { $inc: { no_of_likes: feedbackDetails.feedback ? 1 : -1 } });
         // If user liked the tweet.
         if (feedbackDetails.feedback) {
             // Registering user's reaction.
-            const newReactionInstance = new reaction_1.default({
+            const newReactionInstance = new Reaction({
                 user_id: feedbackDetails.user_id,
                 tweet_id: feedbackDetails.tweet_id,
             });
@@ -120,7 +111,7 @@ const handleFeedbackForATweet = (feedbackDetails) => __awaiter(void 0, void 0, v
             const reactionCreationRes = yield newReactionInstance.save();
         }
         else {
-            const reactionDeletionRes = yield reaction_1.default.deleteOne({
+            const reactionDeletionRes = yield Reaction.deleteOne({
                 user_id: feedbackDetails.user_id,
                 tweet_id: feedbackDetails.tweet_id,
             });
@@ -138,4 +129,5 @@ const handleFeedbackForATweet = (feedbackDetails) => __awaiter(void 0, void 0, v
         return { status: "error", message: err._message, details: err.message };
     }
 });
-exports.handleFeedbackForATweet = handleFeedbackForATweet;
+export { handleCreateNewTweet, handleFeedbackForATweet, handleRegisterTweetMedias, handleFetchAllTweetsForAUser, };
+//# sourceMappingURL=helpers.js.map

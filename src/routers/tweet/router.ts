@@ -197,4 +197,4 @@ router.get(
 // Delete a tweet
 // Delete all tweets for a specific user
 
-module.exports = router;
+export default router;

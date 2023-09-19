@@ -1,14 +1,12 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 // Initialize Database connection
-require("./db/mongoose");
+import "./db/mongoose.js";
 // Initialize Routers
-const session = require("express-session");
-const authRouter = require("./routers/auth/router");
-const userRouter = require("./routers/user/router");
-const tweetRouter = require("./routers/tweet/router");
+import session from "express-session";
+import authRouter from "./routers/auth/router.js";
+import userRouter from "./routers/user/router.js";
+import tweetRouter from "./routers/tweet/router.js";
 // Express Import
-const express = require("express");
+import express from "express";
 const app = express();
 // Middleware for parsing incoming request in JSON
 app.use(session({
@@ -21,4 +19,5 @@ app.use(express.json());
 app.use(authRouter);
 app.use(userRouter);
 app.use(tweetRouter);
-exports.default = app;
+export default app;
+//# sourceMappingURL=app.js.map

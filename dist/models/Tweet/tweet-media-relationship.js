@@ -1,10 +1,5 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const mongoose_1 = __importDefault(require("mongoose"));
-const tweetMediaRelationshipSchema = new mongoose_1.default.Schema({
+import mongoose from "mongoose";
+const tweetMediaRelationshipSchema = new mongoose.Schema({
     tweet_id: {
         trim: true,
         type: String,
@@ -23,5 +18,6 @@ const tweetMediaRelationshipSchema = new mongoose_1.default.Schema({
     order: { type: Number, min: 1, required: [true, "order is required!"] },
 }, { timestamps: true, validateBeforeSave: true });
 // Create the Tweet Media relationship model
-const TweetMediaRelationship = mongoose_1.default.model("TweetMediaRelationship", tweetMediaRelationshipSchema);
-exports.default = TweetMediaRelationship;
+const TweetMediaRelationship = mongoose.model("TweetMediaRelationship", tweetMediaRelationshipSchema);
+export default TweetMediaRelationship;
+//# sourceMappingURL=tweet-media-relationship.js.map

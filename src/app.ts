@@ -1,14 +1,14 @@
 // Initialize Database connection
-require("./db/mongoose");
+import "./db/mongoose.js";
 
 // Initialize Routers
-const session = require("express-session");
-const authRouter = require("./routers/auth/router");
-const userRouter = require("./routers/user/router");
-const tweetRouter = require("./routers/tweet/router");
+import session from "express-session";
+import authRouter from "./routers/auth/router.js";
+import userRouter from "./routers/user/router.js";
+import tweetRouter from "./routers/tweet/router.js";
 
 // Express Import
-const express = require("express");
+import express from "express";
 
 const app = express();
 
