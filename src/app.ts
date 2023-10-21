@@ -10,14 +10,18 @@ import tweetRouter from "./routers/tweet/router.js";
 // Express Import
 import express from "express";
 
+// Cors Import
+import cors from 'cors';
+
 const app = express();
 
 // Middleware for parsing incoming request in JSON
-app.use((req, res, next) => {
-  console.log("Setting CORS headers");
-  res.header("Access-Control-Allow-Origin", "*");
-  next();
-});
+app.use(cors({
+  origin: '*', // or '*' to allow requests from any origin
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  allowedHeaders: ['Content-Type', 'Authorization'], // Include 'Content-Type' in the allowed headers
+  credentials: true, // If you are using cookies or sessions, set this to true
+}));
 
 app.use(
   session({
