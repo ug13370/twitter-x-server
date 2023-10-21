@@ -32,8 +32,8 @@ app.use(
     cookie: {
       secure: true, // use for production
       // secure: false, // use for local
-      // sameSite: "none", // use for production
-      sameSite: "lax", // use for local
+      sameSite: "none", // use for production
+      // sameSite: "lax", // use for local
       maxAge: 30 * 60 * 1000, // 30 minutes in milliseconds
       httpOnly: true, // Recommended for security
     },
