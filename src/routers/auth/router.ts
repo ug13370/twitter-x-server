@@ -16,7 +16,7 @@ router.post("/login", login, async (req: any, res: Response) => {
     // Sending response according to the login result.
     if (loginResult.status === "success") {
       req.session.user_id = loginResult.details.user_id;
-      res.status(201).json(loginResult);
+      res.status(201).json(loginResult).send();
     } else res.status(422).json(loginResult);
   } catch (err: any) {
     // Handle any errors that may occur during the login process

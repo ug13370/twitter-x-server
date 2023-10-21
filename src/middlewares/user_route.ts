@@ -13,6 +13,7 @@ const createNewUser: RequestHandler = async (
     // Define the request schema using Joi inside the function
     const reqSchema = Joi.object({
       user_id: Joi.string()
+        .min(2)
         .regex(/^@/)
         .required()
         .external(isUserIdNotExistingInDB),
@@ -59,6 +60,7 @@ const updateSingleUser: RequestHandler = async (
     // Define the request schema using Joi inside the function
     const reqSchema = Joi.object({
       user_id: Joi.string()
+        .min(2)
         .regex(/^@/)
         .required()
         .external(isUserIdExistingInDB),
@@ -102,6 +104,7 @@ const updateUserPassword: RequestHandler = async (
     // Define the request schema using Joi inside the function
     const reqSchema = Joi.object({
       user_id: Joi.string()
+        .min(2)
         .regex(/^@/)
         .required()
         .external(isUserIdExistingInDB),
@@ -143,6 +146,7 @@ const deleteSingleUser: RequestHandler = async (
     // Define the request schema using Joi inside the function
     const reqSchema = Joi.object({
       user_id: Joi.string()
+        .min(2)
         .regex(/^@/)
         .required()
         .external(isUserIdExistingInDB),
@@ -183,10 +187,12 @@ const followOrUnfollowUser: RequestHandler = async (
     // Define the request schema using Joi inside the function
     const reqSchema = Joi.object({
       follower_user_id: Joi.string()
+        .min(2)
         .regex(/^@/)
         .required()
         .external(isUserIdExistingInDB),
       followee_user_id: Joi.string()
+        .min(2)
         .regex(/^@/)
         .required()
         .external(isUserIdExistingInDB),

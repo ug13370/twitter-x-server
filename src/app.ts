@@ -11,24 +11,33 @@ import tweetRouter from "./routers/tweet/router.js";
 import express from "express";
 
 // Cors Import
-import cors from 'cors';
+import cors from "cors";
 
 const app = express();
 
 // Middleware for parsing incoming request in JSON
-app.use(cors({
-  origin: '*', // or '*' to allow requests from any origin
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  allowedHeaders: ['Content-Type', 'Authorization'], // Include 'Content-Type' in the allowed headers
-  credentials: true, // If you are using cookies or sessions, set this to true
-}));
+// app.use((req, res, next) => {
+//   setTimeout(() => {
+//     next();
+//   }, 2000);
+// });
+
+app.use(
+  cors({
+    origin: "http://localhost:3000/",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
 
 app.use(
   session({
+    name: "SESS_NAME",
     secret: "my-secret-key",
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: true },
+    cookie: { sameSite: "none", secure: false, maxAge: 1000, httpOnly: false },
   })
 );
 
@@ -38,3 +47,6 @@ app.use(userRouter);
 app.use(tweetRouter);
 
 export default app;
+
+// https://medium.com/@anandam00/understanding-session-based-authentication-in-nodejs-bc2a7b9e5a0b#:~:text=Session%2Dbased%20authentication%20is%20a%20popular%20method%20for%20implementing%20user,protect%20application%20routes%20and%20resources.
+// https://stackoverflow.com/questions/64627649/express-session-is-not-setting-cookies-in-browser
