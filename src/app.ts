@@ -23,21 +23,30 @@ const app = express();
 // });
 
 app.use(
-  cors({
-    origin: "https://twitter-frontend-utkarsh-gupta.netlify.app",
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
+  session({
+    name: "sessionId",
+    secret:
+      "kjnkwnedkwkj wckj2unoi32dnenfp3odop2k[pwqls[qlws[l12[w[3djwdoqins]=`qo948398945g383e",
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+      secure: true, // use for production
+      // secure: false, // use for local
+      sameSite: "none", // use for production
+      // sameSite: "lax", // use for local
+      maxAge: 30 * 60 * 1000, // 30 minutes in milliseconds
+      httpOnly: true, // Recommended for security
+    },
   })
 );
 
 app.use(
-  session({
-    name: "SESS_NAME",
-    secret: "my-secret-key",
-    resave: false,
-    saveUninitialized: true,
-    cookie: { sameSite: "none", secure: false, maxAge: 1000, httpOnly: false },
+  cors({
+    origin: "https://twitter-frontend-utkarsh-gupta.netlify.app",
+    // origin: "http://localhost:3000",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
   })
 );
 
