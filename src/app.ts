@@ -21,6 +21,11 @@ app.use(
     cookie: { secure: true },
   })
 );
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "https://localhost:3000");
+});
+
 app.use(express.json());
 app.use(authRouter);
 app.use(userRouter);
