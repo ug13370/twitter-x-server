@@ -13,6 +13,12 @@ import express from "express";
 const app = express();
 
 // Middleware for parsing incoming request in JSON
+app.use((req, res, next) => {
+  console.log("Setting CORS headers");
+  res.header("Access-Control-Allow-Origin", "*");
+  next();
+});
+
 app.use(
   session({
     secret: "my-secret-key",
@@ -21,10 +27,6 @@ app.use(
     cookie: { secure: true },
   })
 );
-
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-});
 
 app.use(express.json());
 app.use(authRouter);
