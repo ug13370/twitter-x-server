@@ -24,7 +24,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "https://twitter-frontend-utkarsh-gupta.netlify.app/",
+    origin: "https://twitter-frontend-utkarsh-gupta.netlify.app",
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
