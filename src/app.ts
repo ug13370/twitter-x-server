@@ -38,6 +38,7 @@ app.use(
     secret: "my-secret-key",
     resave: false,
     saveUninitialized: true,
+    proxy: true,
     cookie: {
       maxAge: 30 * 60 * 1000, // 30 minutes in milliseconds
       httpOnly: true, // Recommended for security
