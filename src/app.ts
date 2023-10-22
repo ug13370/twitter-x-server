@@ -39,6 +39,7 @@ app.use(
     resave: false,
     saveUninitialized: true,
     cookie: {
+      secure: true,
       maxAge: 30 * 60 * 1000, // 30 minutes in milliseconds
       httpOnly: true, // Recommended for security
     },
