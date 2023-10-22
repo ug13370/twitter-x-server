@@ -42,6 +42,7 @@ app.use(
       maxAge: 30 * 60 * 1000, // 30 minutes in milliseconds
       httpOnly: true, // Recommended for security
       sameSite: "none",
+      secure: true,
     },
   })
 );
