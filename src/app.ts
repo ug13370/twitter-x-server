@@ -22,6 +22,8 @@ const app = express();
 //   }, 2000);
 // });
 
+app.set("trust proxy", 1);
+
 app.use(
   cors({
     origin: "https://twitter-frontend-utkarsh-gupta.netlify.app",
@@ -38,7 +40,6 @@ app.use(
     secret: "my-secret-key",
     resave: false,
     saveUninitialized: true,
-    proxy: true,
     cookie: {
       maxAge: 30 * 60 * 1000, // 30 minutes in milliseconds
       httpOnly: true, // Recommended for security
