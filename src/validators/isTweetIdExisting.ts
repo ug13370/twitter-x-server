@@ -8,7 +8,7 @@ async function isTweetIdExisting(tweetId: string): Promise<boolean> {
 
     // If instance exists return false otherwise return true.
     if (res === null) {
-      console.log("User ID does not exists.");
+      console.log("Tweet ID does not exists.");
       return false;
     } else {
       console.log("Tweet ID exists.");

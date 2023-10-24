@@ -19,6 +19,7 @@ import {
   fetchAllTweets,
   giveFeedbackToATweet,
 } from "../../middlewares/tweet_route";
+import { userAuthCheck } from "../../middlewares/auth";
 
 const router = express.Router();
 
@@ -109,15 +110,15 @@ router.patch(
 
 // Fetch timeline
 router.get(
-  "/tweets/:user_id",
-  fetchAllTweets,
-  async (req: Request, res: Response) => {
+  "/tweets",
+  [userAuthCheck, fetchAllTweets],
+  async (req: any, res: Response) => {
     try {
       const tweetsToFetchForUserId = [
-        req.params.user_id,
+        req.session["user_id"],
         ...(
           await UserUserRelationship.find({
-            follower_user_id: req.params.user_id,
+            follower_user_id: req.session["user_id"],
           })
         ).map((relationship: any) => {
           return relationship.followee_user_id;

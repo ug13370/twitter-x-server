@@ -61,7 +61,7 @@ const createNewTweet: RequestHandler = async (
 };
 
 const fetchAllTweets: RequestHandler = async (
-  req: Request,
+  req: any,
   res: Response,
   next: NextFunction
 ) => {
@@ -71,7 +71,7 @@ const fetchAllTweets: RequestHandler = async (
 
   try {
     // Validate the request param against the schema
-    await reqSchema.validateAsync(req.params);
+    await reqSchema.validateAsync({ user_id: req.session.user_id });
 
     // If validation passes, continue with the request handling.
     console.info("Fetch all tweets route middleware passed.");
