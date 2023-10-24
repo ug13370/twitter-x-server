@@ -32,7 +32,7 @@ const handleLogin = async (loginDetails: {
         return {
           status: "success",
           message: "Login successfull",
-          details: { user_id: fetchedUser.user_id },
+          details: fetchedUser,
         };
       }
     }

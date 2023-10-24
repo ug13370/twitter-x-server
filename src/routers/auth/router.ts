@@ -15,8 +15,9 @@ router.post("/login", login, async (req: any, res: Response) => {
 
     // Sending response according to the login result.
     if (loginResult.status === "success") {
-      // Save user id in session.
+      // Save user id/user name in session.
       req.session.user_id = loginResult.details.user_id;
+      req.session.user_name = loginResult.details.name;
 
       // Sending back the login result.
       res.status(201).json(loginResult);

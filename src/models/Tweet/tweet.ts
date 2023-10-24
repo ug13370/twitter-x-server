@@ -7,6 +7,11 @@ const tweetSchema = new mongoose.Schema(
       default: mongoose.Types.ObjectId,
       unique: true,
     },
+    user_name: {
+      trim: true,
+      type: String,
+      required: [true, "user_name is required!"],
+    },
     user_id: {
       trim: true,
       type: String,

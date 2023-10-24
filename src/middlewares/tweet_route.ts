@@ -5,7 +5,7 @@ import isTweetIdExisting from "../validators/isTweetIdExisting";
 import { Request, Response, NextFunction, RequestHandler } from "express";
 
 const createNewTweet: RequestHandler = async (
-  req: Request,
+  req: any,
   res: Response,
   next: NextFunction
 ) => {
@@ -37,7 +37,10 @@ const createNewTweet: RequestHandler = async (
       });
     try {
       // Validate the request param against the schema
-      await reqSchema.validateAsync(req.body);
+      await reqSchema.validateAsync({
+        user_id: req.session.user_id,
+        ...req.body,
+      });
 
       // If validation passes, continue with the request handling.
       console.info("Create new tweet route middleware passed.");

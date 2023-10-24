@@ -24,54 +24,63 @@ import { userAuthCheck } from "../../middlewares/auth";
 const router = express.Router();
 
 // Create a tweet (post/comment)
-router.post("/tweet", createNewTweet, async (req: Request, res: Response) => {
-  try {
-    // Destructure request body.
-    const { user_id, text_content, type, medias = [] } = req.body;
+router.post(
+  "/tweet",
+  [userAuthCheck, createNewTweet],
+  async (req: any, res: Response) => {
+    try {
+      // Fetch Session details
+      const user_id = req.session.user_id;
+      const user_name = req.session.user_name;
 
-    // Create a new user with user details
-    const tweetCreationRes = await handleCreateNewTweet({
-      user_id,
-      text_content,
-      type,
-    });
+      // Destructure request body.
+      const { text_content, type, medias = [] } = req.body;
 
-    // Check if tweet creation was successfull
-    if (tweetCreationRes.status === "success") {
-      // Register medias
-      const mediasRegistrationRes = await handleRegisterTweetMedias({
-        tweet_id: tweetCreationRes.details.tweet_id,
+      // Create a new user with user details
+      const tweetCreationRes = await handleCreateNewTweet({
+        user_name,
         user_id,
-        medias,
+        text_content,
+        type,
       });
 
-      // Check if media registration was successful
-      if (mediasRegistrationRes.status === "success") {
-        // User and password creation successful
-        res.status(201).json({
-          user_id: tweetCreationRes.details.user_id,
+      // Check if tweet creation was successfull
+      if (tweetCreationRes.status === "success") {
+        // Register medias
+        const mediasRegistrationRes = await handleRegisterTweetMedias({
           tweet_id: tweetCreationRes.details.tweet_id,
-          medias: mediasRegistrationRes.details.medias,
-          created_at: tweetCreationRes.details.createdAt,
-          text_content: tweetCreationRes.details.text_content,
+          user_id,
+          medias,
         });
+
+        // Check if media registration was successful
+        if (mediasRegistrationRes.status === "success") {
+          // User and password creation successful
+          res.status(201).json({
+            user_id: tweetCreationRes.details.user_id,
+            tweet_id: tweetCreationRes.details.tweet_id,
+            medias: mediasRegistrationRes.details.medias,
+            created_at: tweetCreationRes.details.createdAt,
+            text_content: tweetCreationRes.details.text_content,
+          });
+        } else {
+          // Media registrationn failed
+          res.status(422).json(mediasRegistrationRes);
+        }
       } else {
-        // Media registrationn failed
-        res.status(422).json(mediasRegistrationRes);
+        // User creation failed
+        res.status(422).json(tweetCreationRes);
       }
-    } else {
-      // User creation failed
-      res.status(422).json(tweetCreationRes);
+    } catch (err: any) {
+      console.error("Tweet creation failed:", err);
+      res.status(500).json({
+        status: "error",
+        message: "Internal Server Error",
+        details: err.message,
+      });
     }
-  } catch (err: any) {
-    console.error("Tweet creation failed:", err);
-    res.status(500).json({
-      status: "error",
-      message: "Internal Server Error",
-      details: err.message,
-    });
   }
-});
+);
 
 // Edit a tweet
 // Like/Dislike a tweet
