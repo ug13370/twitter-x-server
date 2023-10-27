@@ -22,13 +22,17 @@ const tweetSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-    type: {
+    parent_tweet_id: {
       trim: true,
+      default: "",
       type: String,
-      enum: ["post", "comment"],
-      required: [true, "tweet type is required!"],
     },
     no_of_likes: {
+      min: 0,
+      default: 0,
+      type: Number,
+    },
+    no_of_comments: {
       min: 0,
       default: 0,
       type: Number,

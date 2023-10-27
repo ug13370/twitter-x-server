@@ -2,12 +2,13 @@ import Media from "../../models/Other/media";
 import Tweet from "../../models/Tweet/tweet";
 import Reaction from "../../models/Other/reaction";
 import TweetMediaRelationship from "../../models/Tweet/tweet-media-relationship";
+import TweetTweetRelationship from "../../models/Tweet/tweet-tweet-relationship";
 
 const handleCreateNewTweet = async (tweetDetails: {
   user_name: string;
   user_id: String;
   text_content: String;
-  type: "post" | "comment";
+  parent_tweet_id: String;
 }) => {
   try {
     // Create a new tweet instance.
@@ -15,15 +16,41 @@ const handleCreateNewTweet = async (tweetDetails: {
 
     // Save it in database.
     let savedRes: any = await tweetInstance.save();
-    let { tweet_id, user_name, user_id, text_content, createdAt } =
-      savedRes._doc;
+
+    // Extract info
+    let {
+      user_id,
+      tweet_id,
+      createdAt,
+      user_name,
+      text_content,
+      parent_tweet_id,
+    } = savedRes._doc;
+
+    if (parent_tweet_id !== "") {
+      // Create a new tweet-tweet-reln instance.
+      const tweetTweetRelnInstance = new TweetTweetRelationship({
+        child_tweet_id: tweet_id,
+        parent_tweet_id: tweetDetails.parent_tweet_id,
+      });
+
+      // Save it in database.
+      await tweetTweetRelnInstance.save();
+    }
 
     // Returning tweet details.
     console.info("Tweet creation successfull");
     return {
       status: "success",
       message: "Tweet created successfully",
-      details: { tweet_id, user_name, user_id, text_content, createdAt },
+      details: {
+        user_id,
+        tweet_id,
+        createdAt,
+        user_name,
+        text_content,
+        parent_tweet_id,
+      },
     };
   } catch (err: any) {
     console.info("Tweet creation failed");
@@ -86,12 +113,14 @@ const handleFetchAllTweetsForAUser = async (user_id: string) => {
         await Tweet.find({ user_id })
       ).map(
         async ({
-          tweet_id,
-          user_name,
           user_id,
-          text_content,
-          no_of_likes,
+          tweet_id,
           createdAt,
+          user_name,
+          no_of_likes,
+          text_content,
+          no_of_comments,
+          parent_tweet_id,
         }) => {
           let medias = await Promise.all(
             (
@@ -102,13 +131,15 @@ const handleFetchAllTweetsForAUser = async (user_id: string) => {
             })
           );
           return {
-            tweet_id,
-            user_name,
-            user_id,
-            text_content,
-            createdAt,
-            no_of_likes,
             medias,
+            user_id,
+            tweet_id,
+            createdAt,
+            user_name,
+            no_of_likes,
+            text_content,
+            no_of_comments,
+            parent_tweet_id,
           };
         }
       )

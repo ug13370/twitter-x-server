@@ -21,8 +21,13 @@ const createNewTweet: RequestHandler = async (
         .required()
         .external(isUserIdExistingInDB),
       text_content: Joi.string().min(1).optional(),
-      type: Joi.string().valid("post", "comment").required(),
       medias: Joi.array().items(mediaSchema).optional(),
+      type: Joi.string().valid("post", "comment").required(),
+      parent_tweet_id: Joi.when("type", {
+        is: "post",
+        then: Joi.string().optional(),
+        otherwise: Joi.string().required().external(isTweetIdExistingInDB),
+      }),
     })
       .options({ abortEarly: false })
       .custom((value, helpers) => {

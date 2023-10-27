@@ -34,14 +34,14 @@ router.post(
       const user_name = req.session.user_name;
 
       // Destructure request body.
-      const { text_content, type, medias = [] } = req.body;
+      const { medias = [], text_content, parent_tweet_id = "" } = req.body;
 
       // Create a new user with user details
       const tweetCreationRes = await handleCreateNewTweet({
         user_name,
         user_id,
         text_content,
-        type,
+        parent_tweet_id,
       });
 
       // Check if tweet creation was successfull
@@ -62,6 +62,7 @@ router.post(
             medias: mediasRegistrationRes.details.medias,
             created_at: tweetCreationRes.details.createdAt,
             text_content: tweetCreationRes.details.text_content,
+            parent_tweet_id: tweetCreationRes.details.parent_tweet_id,
           });
         } else {
           // Media registrationn failed
@@ -140,7 +141,13 @@ router.get(
         const tweetsFetchRes = await handleFetchAllTweetsForAUser(
           tweetsToFetchForUserId[i]
         );
-        tweets = [...tweets, ...tweetsFetchRes.details];
+
+        tweets = [
+          ...tweets,
+          ...tweetsFetchRes.details.filter(
+            (post: any) => post.parent_tweet_id === ""
+          ),
+        ];
 
         if (tweetsFetchRes.status === "error") {
           res.status(422).json(tweetsFetchRes);
