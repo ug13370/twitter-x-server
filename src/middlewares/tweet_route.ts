@@ -96,20 +96,19 @@ const fetchAllTweets: RequestHandler = async (
 };
 
 const giveFeedbackToATweet: RequestHandler = async (
-  req: Request,
+  req: any,
   res: Response,
   next: NextFunction
 ) => {
   const reqSchema = Joi.object({
-    user_id: Joi.string().regex(/^@/).required().external(isUserIdExistingInDB),
     tweet_id: Joi.string().required().external(isTweetIdExistingInDB),
     feedback: Joi.boolean().required(),
   })
     .options({ abortEarly: false })
     .external(async (value, helpers) => {
-      const { user_id, tweet_id, feedback } = value;
+      const { tweet_id, feedback } = value;
       const foundDocument = await Reaction.findOne({
-        user_id: user_id,
+        user_id: req.session.user_id,
         tweet_id: tweet_id,
       });
 

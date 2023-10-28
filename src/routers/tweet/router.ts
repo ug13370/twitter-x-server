@@ -60,8 +60,11 @@ router.post(
             user_id: tweetCreationRes.details.user_id,
             tweet_id: tweetCreationRes.details.tweet_id,
             medias: mediasRegistrationRes.details.medias,
-            created_at: tweetCreationRes.details.createdAt,
+            createdAt: tweetCreationRes.details.createdAt,
+            user_name: tweetCreationRes.details.user_name,
+            no_of_likes: tweetCreationRes.details.no_of_likes,
             text_content: tweetCreationRes.details.text_content,
+            no_of_comments: tweetCreationRes.details.no_of_comments,
             parent_tweet_id: tweetCreationRes.details.parent_tweet_id,
           });
         } else {
@@ -83,15 +86,17 @@ router.post(
   }
 );
 
-// Edit a tweet
 // Like/Dislike a tweet
 router.patch(
   "/tweet/feedback",
-  giveFeedbackToATweet,
-  async (req: Request, res: Response) => {
+  [userAuthCheck, giveFeedbackToATweet],
+  async (req: any, res: Response) => {
     try {
+      // Fetch Session details
+      const user_id = req.session.user_id;
+
       // Destructure request body.
-      const { user_id, tweet_id, feedback } = req.body;
+      const { tweet_id, feedback } = req.body;
 
       // Register Feedback
       const feedbackRegRes = await handleFeedbackForATweet({

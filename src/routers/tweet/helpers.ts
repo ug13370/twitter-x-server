@@ -23,7 +23,9 @@ const handleCreateNewTweet = async (tweetDetails: {
       tweet_id,
       createdAt,
       user_name,
+      no_of_likes,
       text_content,
+      no_of_comments,
       parent_tweet_id,
     } = savedRes._doc;
 
@@ -48,7 +50,9 @@ const handleCreateNewTweet = async (tweetDetails: {
         tweet_id,
         createdAt,
         user_name,
+        no_of_likes,
         text_content,
+        no_of_comments,
         parent_tweet_id,
       },
     };
@@ -144,6 +148,20 @@ const handleFetchAllTweetsForAUser = async (user_id: string) => {
         }
       )
     );
+
+    // Fetching viewer details.
+    for (let index = 0; index < tweets.length; index++) {
+      const reactions = await Reaction.find({
+        user_id,
+        tweet_id: tweets[index].tweet_id,
+      });
+      tweets[index] = {
+        ...tweets[index],
+        ...{
+          viewer_details: { user_liked_this_tweet: reactions.length === 1 },
+        },
+      };
+    }
 
     // Returning all tweets.
     console.info("Tweet fetched successfully for " + user_id);
