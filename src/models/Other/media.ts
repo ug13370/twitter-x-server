@@ -17,6 +17,14 @@ const mediaSchema = new mongoose.Schema(
       type: String,
       required: [true, "media data is required"],
     },
+    name: {
+      type: String,
+      required: [true, "media name is required"],
+    },
+    description: {
+      type: String,
+      default: "",
+    },
   },
   { timestamps: true, validateBeforeSave: true }
 );

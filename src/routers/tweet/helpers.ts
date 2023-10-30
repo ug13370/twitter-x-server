@@ -66,17 +66,23 @@ const handleCreateNewTweet = async (tweetDetails: {
 const handleRegisterTweetMedias = async (mediaDetails: {
   tweet_id: String;
   user_id: String;
-  medias: { data: String; description: String }[];
+  medias: { data: String; description: String; name: String }[];
 }) => {
   try {
     let savedMedias: { media_id: String; data: String; description: String }[] =
       [];
 
     for (let i = 0; i < mediaDetails.medias.length; i++) {
-      let media: { data: String; description: String } = mediaDetails.medias[i];
+      let media: { data: String; description: String; name: String } =
+        mediaDetails.medias[i];
 
       // Create a new media instance.
-      const mediaInstance = new Media({ type: "tweet", data: media.data });
+      const mediaInstance = new Media({
+        type: "tweet",
+        data: media.data,
+        name: media.name,
+        description: media.description,
+      });
 
       // Save it in database.
       let tweetSavedRes: any = await mediaInstance.save();

@@ -12,15 +12,16 @@ const createNewTweet: RequestHandler = async (
   try {
     // Define the request schema using Joi inside the function
     const mediaSchema = Joi.object({
-      description: Joi.string().max(100).optional(),
+      name: Joi.string().required(),
       data: Joi.string().required(),
+      description: Joi.string().min(0).max(100).optional(),
     });
     const reqSchema = Joi.object({
       user_id: Joi.string()
         .regex(/^@/)
         .required()
         .external(isUserIdExistingInDB),
-      text_content: Joi.string().min(1).optional(),
+      text_content: Joi.string().min(0).optional(),
       medias: Joi.array().items(mediaSchema).optional(),
       type: Joi.string().valid("post", "comment").required(),
       parent_tweet_id: Joi.when("type", {
@@ -31,7 +32,7 @@ const createNewTweet: RequestHandler = async (
     })
       .options({ abortEarly: false })
       .custom((value, helpers) => {
-        // Ensure that either text_content or medias (or both) are present but not both
+        // Ensure that either text_content or medias (or both) are present but not both are missing.
         const { text_content, medias } = value;
         if (!text_content && !medias) {
           return helpers.message({

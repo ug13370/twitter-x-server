@@ -16,6 +16,9 @@ import cors from "cors";
 // Connect Mongo Import
 import MongoStore from "connect-mongo";
 
+// Body parser Import
+import bodyParser from "body-parser";
+
 const app = express();
 
 const sessionStore = MongoStore.create({
@@ -23,12 +26,16 @@ const sessionStore = MongoStore.create({
   mongoUrl: process.env.MONGODB_URL || "",
 });
 
+// Use the bodyParser middleware with an increased limit
+app.use(bodyParser.json({ limit: "15mb" })); // Change the limit value as needed
+app.use(bodyParser.urlencoded({ extended: true, limit: "15mb" })); // Change the limit value as needed
+
 app.set("trust proxy", 1);
 
 app.use(
   cors({
-    origin: "https://twitter-frontend-utkarsh-gupta.netlify.app", // Use this in production
-    // origin: "http://localhost:3000", // Use this for local
+    // origin: "https://twitter-frontend-utkarsh-gupta.netlify.app", // Use this in production
+    origin: "http://localhost:3000", // Use this for local
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
@@ -37,7 +44,7 @@ app.use(
 
 app.use(
   session({
-    name: "sessionId",
+    name: "session_id",
     secret: "my-secret-key",
     resave: false,
     saveUninitialized: true,
@@ -45,8 +52,8 @@ app.use(
     cookie: {
       maxAge: 30 * 60 * 1000, // 30 minutes in milliseconds
       httpOnly: true, // Recommended for security
-      sameSite: "none", // Use this for production
-      secure: true, // Use this for production
+      // sameSite: "none", // Use this for production
+      // secure: true, // Use this for production
     },
   })
 );
