@@ -34,8 +34,8 @@ app.set("trust proxy", 1);
 
 app.use(
   cors({
-    // origin: "https://twitter-frontend-utkarsh-gupta.netlify.app", // Use this in production
-    origin: "http://localhost:3000", // Use this for local
+    origin: "https://twitter-frontend-utkarsh-gupta.netlify.app", // Use this in production
+    // origin: "http://localhost:3000", // Use this for local
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
@@ -52,8 +52,8 @@ app.use(
     cookie: {
       maxAge: 30 * 60 * 1000, // 30 minutes in milliseconds
       httpOnly: true, // Recommended for security
-      // sameSite: "none", // Use this for production
-      // secure: true, // Use this for production
+      sameSite: "none", // Use this for production
+      secure: true, // Use this for production
     },
   })
 );
