@@ -42,4 +42,8 @@ const handleLogin = async (loginDetails: {
   }
 };
 
-export { handleLogin };
+const clearCookie = (res: any, cookieName: string) => {
+  res.cookie(cookieName, "", { expires: new Date(0) });
+};
+
+export { handleLogin, clearCookie };

@@ -1,6 +1,6 @@
 import express from "express";
-import { handleLogin } from "./helpers";
 import { Request, Response } from "express";
+import { clearCookie, handleLogin } from "./helpers";
 import { login } from "../../middlewares/user_route";
 
 const router = express.Router();
@@ -43,7 +43,8 @@ router.post("/logout", (req: any, res: Response) => {
         details: "Could not clear session.",
       });
     } else {
-      res.status(200).json({
+      clearCookie(res, "session_id");
+      res.status(205).json({
         status: "success",
         message: "Logged out successfully",
         details: "Session cleared",
