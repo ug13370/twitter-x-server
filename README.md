@@ -8,6 +8,8 @@
 
 ![Database ERD](https://drive.google.com/file/d/1DCEggiksA3Kdf5aAZP4D-IlltAe-se09/view?usp=sharing)
 
+**PS : If Above image doesn't show up , you can click on [TwitterX Database ERD](https://miro.com/app/board/uXjVMueZBns=/)**
+
 ## Project Objectives
 
 1. **User Registration / Authentication** :
