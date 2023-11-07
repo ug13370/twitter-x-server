@@ -10,6 +10,10 @@
 
 **PS : If Above image doesn't show up , you can click on [TwitterX Database ERD](https://miro.com/app/board/uXjVMueZBns=/)**
 
+## Hostings
+
+**[Netlify](https://www.netlify.com/)** hosts the frontend code, **[Render](https://render.com/)** hosts the backend code, and **[Atlas Cloud](https://www.mongodb.com/atlas/database)** hosts the database.
+
 ## Project Objectives
 
 1. **User Registration / Authentication** :
