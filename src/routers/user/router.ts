@@ -18,12 +18,17 @@ import {
   followOrUnfollowUser,
 } from "../../middlewares/user_route";
 import Password from "../../models/User/password";
+import { userAuthCheck } from "../../middlewares/auth";
+import UserUserRelationship from "../../models/User/user-user-relationship";
 
 const router = express.Router();
 
 // Define a route to fetch all users
-router.get("/user", async (req: Request, res: Response) => {
+router.get("/user", [userAuthCheck], async (req: any, res: Response) => {
   try {
+    // Fetch Session details
+    const session_user_id = req.session.user_id;
+
     // Fetch all users from the database
     const users = await User.find({});
 
@@ -31,10 +36,29 @@ router.get("/user", async (req: Request, res: Response) => {
     if (users.length > 0) {
       // Users fetched successfully
       console.log("Users fetched successfully.");
+
+      let details = [];
+      for (let i = 0; i < users.length; i++) {
+        let obj = {
+          user_id: users[i].user_id,
+          name: users[i].name,
+          following: false,
+        };
+        obj["following"] = (await UserUserRelationship.findOne({
+          follower_user_id: session_user_id,
+          followee_user_id: users[i].user_id,
+        }))
+          ? true
+          : false;
+        details.push(obj);
+      }
+
       res.status(200).send({
         status: "success",
         message: "Users fetched successfully.",
-        details: users,
+        details: details.filter(
+          (user: any) => user.user_id !== session_user_id
+        ),
       });
     } else {
       // No users found
@@ -210,10 +234,13 @@ router.patch(
 router.post(
   "/user/follow",
   followOrUnfollowUser,
-  async (req: Request, res: Response) => {
+  async (req: any, res: Response) => {
     try {
+      // Fetch Session details
+      const follower_user_id = req.session.user_id;
+
       // Destructure request body.
-      const { follower_user_id, followee_user_id } = req.body;
+      const { followee_user_id } = req.body;
 
       // Create a new user relationship with relationship details
       const userRelationshipCreationRes = await handleUserToFollow({
@@ -245,10 +272,13 @@ router.post(
 router.delete(
   "/user/unfollow",
   followOrUnfollowUser,
-  async (req: Request, res: Response) => {
+  async (req: any, res: Response) => {
     try {
+      // Fetch Session details
+      const follower_user_id = req.session.user_id;
+
       // Destructure request body.
-      const { follower_user_id, followee_user_id } = req.body;
+      const { followee_user_id } = req.body;
 
       // Delete a user relationship with relationship details
       const userRelationshipDeletionRes = await handleUserToUnfollow({

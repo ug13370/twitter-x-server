@@ -186,11 +186,6 @@ const followOrUnfollowUser: RequestHandler = async (
   try {
     // Define the request schema using Joi inside the function
     const reqSchema = Joi.object({
-      follower_user_id: Joi.string()
-        .min(2)
-        .regex(/^@/)
-        .required()
-        .external(isUserIdExistingInDB),
       followee_user_id: Joi.string()
         .min(2)
         .regex(/^@/)
